@@ -1,0 +1,258 @@
+\chapter{Stellar Motion}\label{chap:indirect}
+\thispagestyle{plain}
+\begin{spacing}{0.9}
+\begin{flushright}
+{\it \footnotesize When it is darkest, men see the stars.\\}
+ {\small -- Ralph Waldo Emerson}
+\end{flushright}
+\end{spacing}
+As described in \S\ref{sec:indirectpot} a concern with previous simulations using an artificially fixed central potential is that one-armed spirals could be modeled improperly since stellar motion and subsequent feedback into the spiral structure is explicitly suppressed. In these cases, keeping the star fixed means SLING amplification \citep{adams1989,shu1990} of spiral structures would be impossible. Other authors have approached this problem in different ways. For most SPH implementations \citep{rice2003b,mayer2004}, the stellar motion is included automatically by treating the star as a central sink particle that is smoothed differently from the rest of the SPH particles. However, simulations such as those by \citet{rice2003a} exhibit a large initial accretion rate onto the central object. How the transfer of angular momentum from the disk material to the central object is handled could be quite important to the object's motion. Other Eulerian grid-based hydrodynamic schemes use either the indirect potential method or some type of integration of the stellar equation of motion. For the latter approach, accurately determining the force on the central star can be somewhat challenging depending on the method used to calculate the disk potential. To avoid explicitly integrating the stellar equation of motion, \citet{boss2000} allows the central protostar ``to wobble in response to the growth of nonaxisymmetry in the disk, thereby preserving the location of the center of mass of the star/disk system." Unfortunately, this method does not fully capture the protostar/disk interaction since the protostar's equation of motion is not being integrated properly. In order to explore the effect of the protostar/disk interaction, I implemented the indirect potential described in detail in \S\ref{sec:indirectpot}.  In this chapter, I present the results of that simulation and compare it to previous results using a fixed central star. In \S\ref{SMoverview} an overall qualitative comparison is made, in \S\ref{SMdetailed} I look at the stellar motion in more detail and corresponding behaviors in the disk and in \S\ref{SMdisk} I compare the detailed torques, $\alpha$s and periodograms. 
+
+\section{General Comparisons} \label{SMoverview}
+
+For this comparison I used the G1.7TC2P0.5 disk described in \S\ref{sec:IC:initialmodel}. After changes were made to the code to include the indirect potential, I started the run from the initial disk with the same 2 ORP cooling time and $0.01\%$ amplitude of initial random hit. I also used the same 1 $M_\odot$ star and 0.14 $M_\odot$ disk. Overall the outcome is fairly similar. The disk with the indirect potential included goes through the same phases as the fixed star disk.  The onset of the burst phase occurs around 4.5 ORPs with the initial burst being predominately five-armed and transitioning to a predominately three-armed structure. The transition phase begins near 7.0 ORPs and continues through the asymptotic phase which begins around 11.0 ORPs. The simulation continues to 19.5 ORPs; see figure \ref{SMfinalcomp} for a comparison of the final midplane densities of each of the disks. 
+
+In this comparison, one can see that the structures in the indirect simulations appear to be a bit less well defined, probably owing to weaker GI activity as measured by integrated Fourier amplitudes. One can also see that the system center of mass, indicated by the white x in figure \ref{SMfinalcomp} has not moved very far from the center of the grid. 
+\begin{figure}[p]
+\unitlength1in
+\begin{minipage}{0.5\linewidth}
+\centering
+\includegraphics[width=3in]{figures/chap4/indirectburst.eps}
+\end{minipage}
+\hspace{0.25in}
+\begin{minipage}{0.5\linewidth}
+\centering
+\includegraphics[width=3in]{figures/chap4/indirectfinal.eps}
+\end{minipage}
+\vspace{0.5in}
+
+
+\begin{minipage}{0.5\linewidth}
+\centering
+\includegraphics[width=3in]{figures/chap4/phalfburst.eps}
+\end{minipage}
+\hspace{0.25in}
+\begin{minipage}{0.5\linewidth}
+\centering
+\includegraphics[width=3in]{figures/chap4/phalfinal.eps}
+\end{minipage}
+\caption[Comparison of indirect and fixed run final midplane densities]{Midplane densities in logarithmic scale of the indirect (top) and fixed (bottom) simulations. The axes have units of AU and the time is given in ORPs. The small white x in the indirect panel is the position of the system center of mass (disk plus star). In both panels the star is at the center of the grid.}
+\label{SMfinalcomp}
+\end{figure}
+So allowing the star to move does not result in a large motion of the center of mass. Additionally, as can be seen in figure \ref{SMsurfcomp}, the final azimuthally-averaged surface density profiles show very little difference. Assuming the surface density profile is a power law $\Sigma \propto r^{-q}$, a least squares fit for $q$ between 15 and 40 AU gives 2.33 and 2.31 for the indirect and fixed cases, respectively. Also, the Toomre $Q$ values, plotted for several different times for both disks in figure \ref{SMqplot}, are similar for each of the simulations with $1.5 > Q > 1$ in the asymtotic phase. Overall $Q$-values may be slightly smaller for the indirect simulation. 
+\begin{figure}[p]
+\centering
+\includegraphics[scale=.90]{figures/chap4/sigmafinalcompare.fixed.eps}
+\caption[Comparison of indirect and fixed run final surface densities]{Surface densities in logarithmic scale of the indirect (red) and fixed (black) simulations. }
+\label{SMsurfcomp}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\unitlength1in
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.65]{figures/chap4/qplot_indirect.eps}
+\end{minipage}\\
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.65]{figures/chap4/qplot_fixed.eps}
+\end{minipage}
+\caption[Comparison of Toomre $Q$ for indirect and fixed simulations.]{Toomre $Q$ for the indirect (top) and fixed (bottom) simulations plotted at several times. $Q$ values are shown at approximately T= 5, 8, 10,14 and 18 ORPs. Overall the indirect simulations exhibit slightly higher $Q$ values, indicating weaker GI activity.}
+\label{SMqplot}
+\end{figure}
+
+Despite the similarities there are some noticeable differences. First, the burst in the indirect disk is weaker than that of the fixed disk. This can be seen in the Fourier amplitudes, when $A_m$ is summed over $m$ from 1 to 64. For the time period between 4.5 and 11 ORPs, the maximum summed amplitude is 5.8 in the indirect case as opposed to 7.6 in the fixed case. The mean of the summed amplitudes over this time interval is also lower at 2.1 compared to 2.7 in the fixed case. This trend continues throughout the asymptotic phase with the mean value of the summed amplitudes being 2.2 in the indirect case compared to 2.7 in the fixed case averaged over the interval from 12 to 19.5 ORPs. Figure \ref{SMamspec} shows the full range of $m$ values over this time. The ``error bars" on each of the points indicate the RMS fluctuations over the sampling interval. It should be noted that the number of data points used to compute the averages, as well as the RMS fluctuations is different for each of the runs. In the indirect case 801 files were used while in the fixed case 504 files were used. This is mainly due to the difference in time step length and is not thought to cause major differences in the rms fluctuations.
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap4/amspeccompare.eps}
+\caption[Comparison of Indirect and Standard asymptotic $A_m$ values]{Comparison of Indirect (red) and Fixed (black) $A_m$ values for each $m$ averaged from 12 to 19.5 ORPs. The error bars represent the RMS of the fluctuations over this time period.}
+\label{SMamspec}
+\end{figure}
+
+Figure \ref{SMmdots} compares the mass transport during both the burst phase and the asymptotic phase. Overall, the addition of stellar motion does not affect the general outcome of GI activity, although it does produce a measurable weakening of the GIs.
+\begin{figure}[p]
+\centering
+\unitlength1in
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.65]{figures/chap4/mdotburstcompare.eps}
+\end{minipage}\\
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.65]{figures/chap4/mdotasycompare.eps}
+\end{minipage}
+\caption[Comparison of Indirect and Standard run mass transport rates for the burst and asymptotic phases]{Mass transport rates in solar masses per year plotted during the burst (top) and asymtotic (bottom) phases. The x-axis is given in AU and the red curve is the indirect simulation, the black curve is the fixed simulation and the dashed line represents no mass flow.}
+\label{SMmdots}
+\end{figure}
+
+\section{Detailed Motion}\label{SMdetailed}
+
+Due to my treatment of the stellar motion via the indirect potential, the motion of the star is not calculated explicitly in the simulation. In fact, by definition the star remains at the center of the grid because the simulation is performed in its frame. By looking at the system center of mass (COM), one sees the inverse of the stellar motion. Figure \ref{SMstarmotion} shows both the motion of the system COM for the duration of the simulation, as well as the radial motion versus time. I calculated the maximum radial excursion of the center of mass to be 0.24 AU and its mean distance from the star to be 0.11 AU for the time period between 4 and 19.5 ORPs. 
+
+This result is somewhat striking because it is at odds with previous simulations performed by \citet{rice2003a}, hereafter RABB, who found a maximum radial excursion of $\sim 5 \times 10^{-3}$ AU . There are several key differences in my simulations and those of RABB. Firstly, my simulations are carried out on a Eulerian grid, while RABB's use Smoothed Particle Hydrodynamics (SPH). Another key difference is that instead of using a global cooling time which applies to the entire disk, RABB use a local cooling time which is tied to the local orbital speed, in their case, $t_{\mathrm{cool}} = 5\Omega^{-1}$ or $t_{\mathrm{cool}} = 10\Omega^{-1}$. Using this cooling prescription has the effect of shortening the cooling time with decreasing radius. Due to this, the innermost parts of the RABB disks have extremely short cooling times and are violently GI unstable. This drives large accretion rates causing the inner 2 AU of mass to be accreted onto the central star. The outcome of this transport could vary significantly depending on the treatment of the linear and angular momentum of the material as it is added to the star. 
+
+My simulation does not exhibit a large accretion rate onto the central body because, like other constant cooling time simulations, the inner disk stays gravitationally stable. 
+\begin{figure}[p]
+\centering
+\unitlength1in
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.6]{figures/chap4/xycompos.new.eps}
+\end{minipage}\\
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.75]{figures/chap4/rcom.eps}
+\end{minipage}
+\caption[Position of the system center of mass and it's radial excursion.]{Plot of the system COM motion in the x-y plane (top), both axis are labelled in AU and system COM radial excursion (bottom) for the duration of the simulation, radial excursion labelled in AU and time in ORPs.}
+\label{SMstarmotion}
+\end{figure}
+Figure \ref{SMstarmotion} shows the COM motion from 0 to 12 ORPs in black and 12 to 19.5 ORPs in red. The black depicts the COM motion starting at $T=0$ through the burst and transition phases, while the red shows the asymptotic phase. In the burst phase, one sees that the COM goes through its largest excursion from the origin. This may, in fact, be transient SLING behavior. However once the disk enters the asymptotic phase the COM excursion decreases in amplitude but remains non-negligible. From 12 to 19.5 ORPs the mean distance from the star is 0.09 AU. By constructing a Lomb-Scargle periodogram \citep{lomb1975,scargle1982} of the COM positions, I can determine the periodicity of the stellar motion. Figure \ref{SMcomperioda} shows the Lomb-Scargle periodogram power of the radial motion measured between 12 and 19.5 ORPs. If I assume that the most powerful signal is due to the star's primary orbit, I arrive at a pattern speed of $0.72$ ORP. If the system were located at a distance of 100 pc, this would yield a proper motion of $\sim 16 \mathrm{\mu as/yr}$. To confirm the presence of this signal, I performed several tests. I sampled the data at several different rates, although I stored the data for each time step. Calculating a periodogram from the full 250,000 time step data set proved to be too compute intensive. I sampled the data at 50, 200, 500, and 1000 time step intervals and found the same pattern in each. As I increased the sampling frequency the features became sharper and more well defined as expected. Figure \ref{SMcomperioda} shows results from the 50 time step sampling. I also tested for a signal in a random rearrangement of the data. I took the data which produced the signal in figure \ref{SMcomperioda} and randomly reassigned the radius values to a time step. I then produced a periodogqram which is presented in figure \ref{SMcomperiodb}. One can see that there is no clear signal. I also obtained periodograms for the $x$ and $y$ motion of the COM as shown in figure \ref{SMxycomperiod}. They exhibit a periodicity similar to the $r$ motion. For each of these cases, I also calculated the false alarm probability, $F$, \citep{horne1986} where the quantity $1-F$ is the probability that the data contain a signal. For the $r$, $x$, and $y$ motions $1-F$ was $\gg .99999$. For the random resampling of the $r$ data $1-F$ was $0.24$. 
+\begin{figure}[p]
+\centering
+\unitlength1in
+\subfigure[][Lomb-Scargle periodogram of radial motion.]{
+\includegraphics[scale=.7]{figures/chap4/rcomperiod50.eps}
+\label{SMcomperioda}
+}
+\\
+\subfigure[][Lomb-Scargle periodogram of randomized radial motion.]{
+\includegraphics[scale=.7]{figures/chap4/randcomperiod.eps}
+\label{SMcomperiodb}
+}
+\caption[COM periodogram for radius and random sample]{Lomb-Scargle periodogram power of the radial motion of the COM. The power scale in this case is arbitrary, only relative power is important. These periodograms have been generated using data from 12 to 19.5 ORPs.}
+\end{figure}
+\begin{figure}[p]
+\centering
+\unitlength1in
+\subfigure[][Lomb-Scargle periodogram of $x$ motion.]{
+\includegraphics[scale=.7]{figures/chap4/xcomperiod50.eps}
+\label{SMxycomperioda}
+}
+\\
+\subfigure[][Lomb-Scargle periodogram of $y$ motion.]{
+\includegraphics[scale=.7]{figures/chap4/ycomperiod50.eps}
+\label{SMxycomperiodb}
+}
+\caption[COM periodogram for x and y coordinates]{Lomb-Scargle periodogram power of the $x$ and $y$ motion of the COM . The power scale in this case is arbitrary, only relative power is important. This periodogram has been generated using data from 12 to 19.5 ORPs.}
+\label{SMxycomperiod}
+\end{figure}
+
+From the large motions exhibited by the system COM and therefore by the star in the inertial frame, one can clearly see that there is a appreciable amount of angular momentum being transfered between the disk and the star. Figure \ref{SMcomtorque} shows the star's angular momentum and torque produced by the star/disk interaction. These quantities are calculated by taking a five point numerical derivative in time of the system COM values. This gives system COM velocities which are used to compute the star's angular momentum. I then compute another five point derivative of the angular momentum to produce the torque. Clearly transfer of angular momentum causes the star's orbit to change in radius. Additionally, the torques measured are comparable to the gravitational torques measured in the disk (see \S\ref{SMdisk} and figure \ref{SMdisktorque}). Although the instantaneous torques can be $10^3$ larger in magnitude than the average disk gravitational torques, averaging the torque from 12 to 19.5 ORPs gives a value of $5.1\times10^{38}$ ergs, which is the same order of magnitude as the average gravitational torques measured in the disk (figure \ref{SMdisktorque}). Since these torques are comparable, it would appear that the stellar motion should not be neglected.
+
+\begin{figure}[p]
+\centering
+\unitlength1in
+\subfigure[][Stellar angular momentum as a function of time.]{
+\includegraphics[scale=.7]{figures/chap4/indirectangmom.eps}
+\label{SMcomtorquea}
+}
+\\
+\subfigure[][Torque exerted on the star as a function of time.]{
+\includegraphics[scale=.7]{figures/chap4/indirecttorque.eps}
+\label{SMcomtorqueb}
+}
+\caption[Angular momentum and torque on central star as measured from COM motion]{Plot of the stellar angular momentum and torque as a function of time, measured using the motion of the system COM.}
+\label{SMcomtorque}
+\end{figure}
+
+\section{Disk Analysis} \label{SMdisk}
+
+Although the general characteristics of the two simulations are similar, detailed analysis of the disk dynamics reveal that there are measurable differences between the two cases. Figure \ref{SMamspec} shows that the the Fourier amplitudes in the indirect simulation are smaller than the fixed star simulation. Another important characteristic of an $m$-armed spiral structure is the coherence of the pattern. 
+
+\subsection{One-armed Structure}\label{sec:ind:SMm1}
+
+I first examined the $m = 1$ patterns in the indirect simulation. In this case, $m = 1$ is important because interactions between the star and and $m = 1$ structure can amplify the $m = 1$ pattern via the SLING mechanism \citep{adams1989,shu1990}. Figure \ref{SMindirectperiod} shows the periodograms for $m = 1-4$ for the indirect simulation, while figure \ref{SMfixedperiod} shows them for the fixed simulation. It does not seem that $m = 1$ has any stronger radially coherent patterns in the indirect simulation. This indicates that sustained SLING amplification is not present during the asymtotic phase of the indirect simulation. Additional evidence to support this claim may be found in figure \ref{SMdisktorque}, which divides the contribution to the disk torque into its various components. One can see that the contribution from the $m = 1$ component is negilible. We may not see evidence of SLING amplification due to the fact that even though it is a dynamic effect, SLING has a rather long growth time, and our integration times may be too short to detect its growth, but it is also possible that SLING is simply not operating, due to the fact that our disk is fairly low mass compared to those considered by \citet{adams1989}. These findings confirm the conclusions of \citet{noh1992}, who found that for low mass disks the growth of $m = 1$ patterns was due mainly to swing amplification and contributions from the indirect potential.
+
+Although there is no sustained growth of a $m = 1$ pattern due to SLING amplification, it is possible that a transient episode of SLING takes place during the burst phase. As can be seen in figure \ref{SMstarmotion}, the most rapid growth of radial motion occurs during the burst and transition phases from 4.5 to 11.0 ORPs. Indeed, the black curve in figure \ref{SMstarmotion} shows the great looping excursions from the origin which occur during the burst phase. 
+\begin{figure}[p]
+\unitlength1in
+\begin{minipage}[t]{3.15in}
+\includegraphics[scale=.35]{figures/chap4/indirectm1.eps}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{3.15in}
+\includegraphics[scale=.35]{figures/chap4/indirectm2.eps}
+\end{minipage}\\
+\begin{minipage}[b]{3.15in}
+\includegraphics[scale=.35]{figures/chap4/indirectm3.eps}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{3.15in}
+\includegraphics[scale=.35]{figures/chap4/indirectm4.eps}
+\end{minipage}
+\caption[Indirect simulation periodograms for $m = 1-4$]{Periodograms for the indirect simulation measured using data from 12 to 19.5 ORPs, $m = 1-4$ are presented here. The color scale represents relative power with purple being the smallest  and red/white being the largest, in this case the relative power is the important measure as opposed to the absolute numbers.}
+\label{SMindirectperiod}
+\end{figure}
+\begin{figure}[p]
+\unitlength1in
+\begin{minipage}[t]{3.15in}
+\includegraphics[scale=.35]{figures/chap4/Phalfm1_short.eps}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{3.15in}
+\includegraphics[scale=.35]{figures/chap4/Phalfm2_short.eps}
+\end{minipage}\\
+\begin{minipage}[b]{3.15in}
+\includegraphics[scale=.35]{figures/chap4/Phalfm3_short.eps}
+\end{minipage}
+\hfill
+\begin{minipage}[b]{3.15in}
+\includegraphics[scale=.35]{figures/chap4/Phalfm4_short.eps}
+\end{minipage}
+\caption[Fixed simulation periodograms for $m = 1-4$]{Periodograms for the fixed simulation measured using data from 12 to 19.5 ORPs, $m = 1-4$ are presented here. The color scale represents relative power with purple being the smallest  and red/white being the largest, in this case the relative power is the important measure as opposed to the absolute numbers.}
+\label{SMfixedperiod}
+\end{figure}
+
+\subsection{Disk/Star Interaction} \label{SMdiskstar}
+\begin{table}[b]
+\centering
+\caption[Pattern Speeds of Periodogram Features]{Pattern Speeds of Prominent Periodogram Features}
+\begin{tabular}{ccccc}
+\hline
+Signal Measured&\multicolumn{4}{c}{Pattern Speeds (1/ORP)}\\
+\hline\hline
+COM $x$-motion&0.55&0.80&1.05&1.50\\
+COM $y$-motion&0.51&0.80&1.02&1.50\\
+$m = 1$ Pattern&0.65&0.85&---&1.50\\
+$m = 2$ Pattern&0.50&0.80&---&1.50\\
+$m = 3$ Pattern&0.59&0.80&1.05&1.50\\
+\hline
+\label{SMperiodtable}
+\end{tabular}
+\end{table}
+Although the motion of the star does not induce sustained $m = 1$ growth, the star apparently does have a strong interaction with the disk. The first clues of this interaction come from comparing strong periods in the COM $x$ and $y$ periodograms and strong stripes of power in the disk periodograms. Table \ref{SMperiodtable} compares the pattern speeds of the most prominent features in each of these periodograms. One can see that the periodicity in the $x$ and $y$ COM motion corresponds to coherent patterns in $m = 1, 2, \mathrm{and}~ 3$ at pattern speeds of $0.5, 0.8, \mathrm{and }~ 1.50$/ORP. The most striking of these features in the $m = 2 ~\mathrm{ and }~ 3$ periodograms is the one at a pattern speed of 1.50/ORP. It also has the best agreement among all the measured signals. The effects of this star/disk interaction can be seen in the disk torque as well. Figure \ref{SMdisktorque} compares the gravitational torque of the disk on itself for several $m$-values. Clearly, the disk torque is decreased in the indirect simulation when compared to the fixed simulation. Specifically we see a sharp decrease at 23.5 AU which corresponds to the co-rotation radius of a pattern with pattern speed 1.50/ORP. One can also observe the torque maximum at 19AU, which is particularly prominent in all $m$ values corresponds to the inner Linblad resonance of a $m = 3$ pattern with pattern speed 1.5/ORP.  
+\begin{figure}[p]
+\centering
+\includegraphics[scale=.90]{figures/chap4/torque_combined.fixed.eps}
+\caption[Comparison of indirect and fixed run asymptotic torque profiles.]{Torque profiles averaged from 12 to 19.5 ORPs for the indirect (red) and fixed (black) simulations.}
+\label{SMdisktorque}
+\end{figure}
+
+The structure of the torque profile is clearly different from the fixed simulation in that it is weaker overall and significantly weaker at the co-rotation of major $m = 2~\mathrm{and}~3$ features which share a periodicity with the COM motion. The decrease in disk torque is most certainly due to the disk/star interaction as is evidenced by the strong periodicity at the torque minimum seen in the periodograms of figure \ref{SMindirectperiod}. All $m > 1$ values in figure \ref{SMindirectperiod} show a significant stripe of power which intersects corotation at ~24 AU, corresponding to the torque minimum. Additionally, when examining the difference in torque between the indirect and fixed cases, one finds that the decrease in disk torque is comparable to the torque on the star as measured in figure \ref{SMcomtorqueb}. Figure \ref{SMtorquediff} shows the difference of the disk torques in the fixed star and indirect simulations. In fact, the time averaged torque from 12 to 19.5 ORPs on the star is $5.1\times10^{38}$ ergs, while the difference in disk torques averaged over the same time interval and averaged from 10 to 60 AU is $9.0\times10^{38}$ ergs. Apparently, some of the torque, which is confined to the disk in the fixed star case, is transferred to the star when the star is allowed to move.
+\begin{figure}[p]
+\centering
+\includegraphics[scale=.90]{figures/chap4/torque_diff.fixed.eps}
+\caption[Difference of indirect and fixed run asymptotic torque profiles.]{The difference (fixed $-$ indirect) between the torque profiles averaged from 12 to 19.5 ORPs for the indirect and fixed simulations.}
+\label{SMtorquediff}
+\end{figure}
+
+Even though these differences in the disk structure introduced by the star's motion are measurable in the torque profiles and periodograms, the overall mass transport in the disk is largely unaffected as can be seen in the mass transport rates in figure \ref{SMmdots}. Another metric of mass transport is the effective gravitational $\alpha$, which is plotted for both the fixed and indirect simulations in figure \ref{SMalphas}. Figure \ref{SMalphas} also shows the predicted \citet{gammie2001} curves for a fully self-gravitating and non-self-gravitating disk for $t_{\mathrm{cool}} = 2$. Although the indirect potential $\alpha$ is smaller than the fixed-star $\alpha$, it follows the overall trend of the fixed-star $\alpha$. The decrease in $\alpha$ is consistent with the decrease in torque. One can notice that the inclusion of stellar motion brings the measured $\alpha$ somewhat closer to the predicted Gammie $\alpha$. Perhaps the combination of stellar motion and increased angular resolution, which also acts to decrease the measured $\alpha$ (see \S\ref{sec:IC:resolution}), would bring the measured $\alpha$ into rough agreement with Gammie's prediction. However, as noted in \S\ref{sec:IC:resolution}, one cannot accurately predict the detailed disk structure based on an $\alpha$ model, nor can one predict the asymptotic phase $t_{\mathrm{cool}}$ in a fully radiative disk based on initial conditions (see also \citet{johnson2003}). 
+\begin{figure}[p]
+\centering
+\includegraphics[scale=.90]{figures/chap4/alpha_combined.fixed.eps}
+\caption[Comparison of Indirect and Standard run $\alpha$ profiles]{Effective Shakura-Sunyaev $\alpha$-values computed for the fixed star (black curve) and indirect (red curve) simulations averaged over the asymptotic phase from 12.5 to 19 ORPs. Shown for comparison are curves predicted by \citeauthor{gammie2001} with $t_{cool} = 2$ ORP. The upper curve assumes a self-gravitating disk; the lower curve assumes gravity is due to the star alone. For $Q \approx 1.3$, we expect the disk to be significatly self-gravitating.}
+\label{SMalphas}
+\end{figure}
+
+\section{Conclusions} \label{SMconclusions}
+
+In this chapter I have shown that the inclusion of stellar motion in our three dimensional radiative hydrodynamic simulations has a measurable, but not drastic, effect on the structure of a gravitationally unstable protoplanetary disk. Although the gross features such as surface density profile, midplane density structure, $A_m$ values, and mass transport rates remain largely unchanged, one can see that the motion of the central star is not negligible, as previously reported by \citet{rice2003a}, and there is a relationship between changes in the disk self-torque and the star/disk interaction. 
+Clearly, there is a strong correlation between the periodic motion of the star caused by torque exerted by the disk and the periodicity in the spiral patterns for $m = 1-4$, which can be seen by studying Figures \ref{SMxycomperioda}, \ref{SMxycomperiodb}, \ref{SMindirectperiod}, and \ref{SMfixedperiod} as well as table \ref{SMperiodtable}. There is certainly a complex interaction  and feedback between the disk and star which gives rise to this correlation, certainly the disk torques are not the sole determination of the star's motion  nor does stellar motion determine the disk structure. Further study is required to determine the nature of this feedback and its sensitivity to various simulation parameters such as cooling time (and thereby GI strength), initial surface density profile, and star to disk mass ratio.
+
+Overall the net effect of the star/disk interaction is to introduce a new degree of freedom to the system which allows some of the force that previously went into disk self-torque to be applied to the star/disk torque. This, in turn, slightly lowers the strength of the $A_m$ values, disk torques, and $\alpha$. Additionally, the star/disk torque increases the stellar angular momentum and, since we assume it is all converted to orbital angular momentum, changes the star's orbit substantially. 
+
+ 
+
+
+

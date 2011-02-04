@@ -1,0 +1,483 @@
+\begin{spacing}{1.0}
+\chapter[Planet Migration]{Planet-Disk Interactions and Planet Migration}\label{chap:planet}
+\end{spacing}
+\thispagestyle{plain}
+% \begin{spacing}{0.9}
+% \begin{flushright}
+% {\it \footnotesize I am a leaf on the wind.\\ Watch how I soar.\\}
+%  {\small -- Hoban 'Wash' Washburn, {\it Serenity}}
+% \end{flushright}
+% \end{spacing}
+To  extend the work presented in chapters \ref{chap:compare} and \ref{chap:indirect}, I performed a series of simulations that explore the interplay between a GI active disk and a massive planet. In this chapter I explore the effect a massive planet can have on the onset of GIs, and how GI activity in a protoplanetary disk can affect the migration of a massive planet. I also investigated how the planet's mass affects the interaction by simulating several planet masses. To simulate the inclusion of a massive planet I use the algorithms described in \S\ref{sec:planetintegrate}. The tests of the integration and interpolation routines used to validate the method are also described in \S\ref{sec:leapfrog}.
+
+\section{Planet Simulations}\label{sec:PL:sims}
+
+Overall I considered seven simulations in the planet disk interaction study. I conducted one simulation as a fiducial run with no protoplanet, which I will refer to as the BASELINE simulation, three simulations with a protoplanet included in the initial disk, and three simulations where a protoplanet was inserted into the disk after GI activity was underway. All simulations started with a resolution of $(r,\phi,z) = (256,512,32)$, the $r$ and $z$ grid dimensions were doubled to expand the grid when the disks went through the burst phase so that mass was not lost from the grid.
+
+The BASELINE simulation used an initial disk identical to the G1.7TC2P0.5 disk from chapter \ref{chap:compare} (see table \ref{tbl:IC:initcond}), except for the fact that the disk material inside 5 AU was removed. The $\approx$ 2 AU hole was expanded to 5 AU because the Boley radiative routines are subject to numerical instabilities when the disk is poorly resolved in the vertical direction. Since the initial disk has an aspect ratio of $H/\varpi \approx 0.1$, by increasing the radius of the inner hole the vertical resolution at the inner edge was increased as well. The removal of this material had very little effect on the total disk mass, it represented a decrease of 3\% of the disk mass. 
+
+In addition to the small change in the initial disk, the BASELINE disk and disks including planets were evolved using several different physics algorithms from the simulations in chapters \ref{chap:compare} and \ref{chap:indirect} (see table \ref{tbl:algtable}). All simulations in this chapter used the indirect potential, described in \S\ref{sec:indirectpot} and chapter \ref{chap:indirect}. In detail, the major differences are as follows. The disks in this chapter used the Boley radiative routines, outlined in \S\ref{sec:boleycooling} and described in detail by \citet{boley2007b}, to compute the cooling of a particular cell, while simulations from previous chapters used the constant cooling approximation from \S\ref{sec:constantcooling}. They were also evolved using a more realistic \cf{H2} equation of state instead of the ideal gas equation of state with fixed ratio of specific heats from equation \eqref{eq:idealpres} that was used in the simulations from chapters \ref{chap:compare} and \ref{chap:indirect}. As discussed in \S\ref{sec:IC:gamma} simulations using a fixed $\gamma$ used either $\gamma = 5/3$ or $7/5$. However, fixing the adiabatic index to one of these values may gloss over important phenomena, especially near regions in the temperature range where the gas is transitioning from $\Gamma_1 = 5/3$ to $7/5$. Of particular interest is the $\Gamma_1$ in regions affected by shock induced heating from GIs. 
+
+\citet{boley2007a} describes in detail some of the potential inaccuracies in different treatments of the \cf{H2} equation of state, and proposes a method for accurately representing it. This approach was used for the simulations in this chapter. One of the difficulties with this approach was determining the appropriate mixture of ortho-hydrogen to para-hydrogen. Figure 1 of \citet{boley2007a} shows the dramatic variation of $\Gamma_1$ for different choices of the ortho/para ratio. The appropriate value to use for a typical protoplanetary disk is not well known, although the ratio has been studied for various astrophysical conditions by many \citep{osterbrock1962,decampli1978,flower1984,sternberg1999,fuente1999,flower2006}. An approximate timescale for ortho- and para-hydrogen species to equilibrate is $\approx$ 300 yr \citep{boley2007a}. This is longer than the dynamical timescale throughout the disk (1 ORP $\approx$ 250 yr), so it is unlikely that the ortho/para ratio is an equilibrium mix. For these simulations I adopted a fixed ortho/para ratio of 3:1 because this is the statistical ratio that \cf{H2} is assumed to form on cold grains \citep{flower2006}.
+
+\subsection{Inserting Planets Into the Disk}\label{sec:PL:insert}
+
+To study how GIs affect planet migration in an active disk I performed three simulations with protoplanets of varying masses. These planets were inserted at 10.5 ORPs after the initial burst of GI activity had subsided and GIs appeared to be in a quasi-steady state. In order to study the maximal interaction between GIs and the protoplanet I attempted to place the protoplanet at the corotation radius of the strong global $m = 2$ mode. Analysis of the disks from chapter \ref{chap:compare} coupled with preliminary findings from the BASELINE simulation indicated that the corotation radius of the $m = 2$ mode a disk without a protoplanet was $\approx 25$ AU. 
+
+I inserted protoplanets with masses of 0.3, 1, and 3 $M_{J}$, where $M_J$ is one Jupiter mass, at a cylindrical radius of 25 AU at the time of 10.5 ORP in the BASELINE calculation. The planets were inserted in the disk midplane, and since the simulations have reflection symmetry about the midplane, the vertical force on the planet is always zero. The planets were inserted with an initial circular velocity determined by treating the disk mass at $\varpi < 25$ AU as a point mass at the grid center. I carried out each of these simulations to $>$ 20 ORPs, resulting in $\approx$ 2500 yr of simulation time with the planets included. I will refer to each of the simulations by their mass and the time of planet insertion (e.g. 0.3JUP10ORP refers to the simulation including a protoplanet of 0.3 $M_{J}$ included at 10.5 ORP). 
+
+In addition to inserting planets into disks which were already GI active, I performed simulations where I inserted planets into the equilibrium disk. Using these simulations I was able to explore how the presence of a planet affected the onset of GIs. As in the asymptotic phase simulations, I performed three simulations with planets of varying mass. The planets were inserted at a cylindrical radius of 25 AU at the disk midplane with a circular velocity calculated in the same manner as the simulations with planets inserted at 10 ORPs. 
+
+The planets were treated as smoothed point masses, see equation \eqref{eq:planetphi}, and do not accrete mass from the surrounding disk. The smoothing length was set to 20\% of the planet's Hill radius for all simulations. Accretion from a protoplanetary disk to a planet is a complex process in a laminar disk where disk material entering the Hill sphere of the planet is expected to form a circumplanetary disk, and accrete onto the planet through this disk. The accretion rate through the circumplanetary disk and the rate at which material can accrete onto the planet without it undergoing expansion are determined by local disk properties. Additionally, it is unclear whether a circumplanetary disk can form in a GI active region.
+
+The assumption of a non-accreting protoplanet can be explained by two possible physical scenarios. The GI active disk environment in which the planet is embedded is not, strictly speaking, in hydrostatic equilibrium, so material inside the Hill sphere may be forced outside of it by the action of the GIs. Although some material is sure to become gravitationally bound, it may be an extremely small amount due to the turbulent behavior of the surrounding disk. Another possibility is that the Kelvin-Helmholtz time of the atmosphere surrounding the protoplanet is longer than the migration time. In this case, the protoplanet cannot accrete additional material from the surrounding disk since the atmosphere cannot contract rapidly enough. This may be the case if the atmosphere is built up while the central protoplanet maintains a low luminosity, which could be caused by large opacity \citep{hub2005}. In accreting and non-accreting comparison simulations performed by \citet{nelson2000b} the non-accreting protoplanet migrated inward more rapidly during an initial gap forming phase but slowed after a couple thousand orbit periods (see figure 4 from \citet{nelson2000b}). 
+
+\section{Migration in Laminar Disks}\label{sec:PL:laminar}
+
+As described in \S\ref{sec:migtheory} when an object in a protoplanetary disk becomes massive enough that forces due to gas drag are negligible, it may migrate in a laminar disk by type I, type II, or type III migration. Although the mechanisms driving each of these types of migration vary, the characteristic that determines which type of migration will occur is the ability of the object to form a gap in the protoplanetary disk. Besides the criterion that tidal torques exceed viscous torques for gap formation (see equations \eqref{eq:gapform1} and \eqref{eq:gapform2}), another possibility for gap opening is that the disk response to tidal forcing from the embedded object becomes non-linear. A sufficient condition for non-linearity through shock formation is \citep{korycansky1999}
+\begin{equation}
+\frac{m_p}{M_\star} > \left(\frac{H}{\varpi}\right)^3.
+\label{eq:gapform3}
+\end{equation}
+Although none of the disks I considered are laminar since they are all susceptible to GIs, one can consider whether the inserted protoplanets would form a gap if the disks were to be laminar. The 3 $M_J$ planet is most likely to open a gap, its Hill radius is 2.5 AU, which is roughly equal to the disk scale height at 25 AU. As this is a borderline case either equation \eqref{eq:gapform1} or equation \eqref{eq:gapform2} might apply. For equation \eqref{eq:gapform1} we have,
+\begin{equation}
+9 \times 10^{-6} \gtrsim 2.36 \times 10^{-5} \alpha.
+\end{equation}
+Estimates for $\alpha$ in protoplanetary disks vary widely, but most researchers agree on an effective $\alpha \leq 0.1$, which would mean that the 3 $M_J$ planet should open a gap if the disk scale height is greater than the protoplanet's Hill radius. On the other hand, if the disk scale height is less than the planet's Hill radius the criterion becomes
+\begin{equation}
+\frac{R_H}{\varpi} \gtrsim \zeta\alpha.
+\end{equation} 
+This is most likely not the case as $\zeta \sim 0.25$ and $\alpha \leq 0.1$. However, the non-linearity criterion of equation \eqref{eq:gapform3} is probably met since $\frac{m_p}{M_\star} = 0.003$ and $\frac{H}{r} \approx 0.01$. In any case, the 3 $M_J$ planet is near the gap forming limit but slightly above, the 1 $M_J$ planet is right on the borderline, and the 0.3 $M_J$ planet is near the limit but slightly below for a laminar disk. However, the analysis performed for laminar disks probably does not hold for GI active disks, as the viscous torque in a GI active disk is not properly described by equation \eqref{eq:tvisc}, because of large spatial and temporal fluctuations in the gravitational torque driven by the GIs.
+
+As outlined in \S\ref{sec:migtheory} migration rates can vary dramatically depending on the type of migration an object is undergoing. To review briefly, type I migration occurs when no gap is opened in the disk, type II occurs when the object clears a gap in the disk, and type III occurs when a gap is only partially opened. Although the type I and type II migration mechanisms produce a more or less steady migration rate in a laminar disk, type III migration is a self-sustaining mechanism that results in runaway migration rates. Type III migration, first introduced by \citet{masset2003}, is highly dependent on the details of the flow inside the Hill radius of the embedded object, but tends to have very short migration timescales of order a few hundred orbits. In type III migration, the embedded object opens a partial gap, and disk material that flows across the object's orbit executes U-turns at the end of horseshoe orbits. As the orbital radius of the disk material changes a torque is imparted to the embedded object that is proportional to its migration rate. This rate changes due to the torque, and is increased in proportion to the co-orbital mass deficit, $\delta m$ (see equation (21) from \citet{masset2003}) as well, further accelerating the object's inward migration. Since type III migration rates are determined by a non-linear interaction between the disk, embedded object, and inter-gap flows, it is very difficult to predict migration rates. Simulations have been performed by \citet{lin2010} and \citet{peplinski2008a,peplinski2008b,peplinski2008c} and show that type III migration is a rapid runaway process. At any rate, it is likely that the simulations presented in this chapter lack the radial and azimuthal resolution to adequately resolve the corotation torques and horseshoe orbits that drive type III migration.
+
+If the mass of the embedded object is less than or comparable to the mass of the surrounding disk material that it is interacting with gravitationally, then type II migration rates can be estimated by looking at the timescale for the viscous evolution of the disk. In a steady state disk the viscous migration timescale is given by,
+\begin{equation}\label{eq:PL:t2mig}
+\tau_{mig} \sim \frac{2 \varpi^2_p}{3 \nu}.
+\end{equation}
+Here $\varpi_p$ is the radius of the embedded object and $\nu$ represents the kinematic viscosity. Although there are no viscosity terms explicitly included in the code, if one uses the standard $\alpha$ prescription \citep{shakura1973}, then one can write $\nu = \alpha H c_s$. However, it should be noted that it is important to consider the nature of the effective viscosity. In all likelihood, GIs do not produce an effective viscosity or effective $\alpha$ that is compatible with all of the assumptions made by \citeauthor{shakura1973}. The effective $\alpha$s determined in chapter \ref{chap:compare} and \ref{chap:indirect} can be used to estimate the migration timescale. Assuming $\alpha \approx 0.05$ and $c_s = H\Omega$, and inserting into equation \eqref{eq:PL:t2mig} results in a migration timescale of $\tau_{mig} \approx 880$ ORPs (220,000 years) for a planet at a radius of 25 AU in a Keplerian disk.
+
+If the embedded object is not massive enough to open a gap or partial gap, then type I migration will take place. Type I migration rates have been estimated for isothermal disks by \citet{tanaka2002} and more recently for adiabatic disks by \citet{paardekooper2010}. \citeauthor{paardekooper2010} present the total torque on an embedded object in a non-isothermal disk as being composed of a Linblad torque and a corotation, or horseshoe drag, torque. They present a analytical formula (equation (14)) for the Linblad torque that approximately agrees with \citet{tanaka2002}. The formula for the corotation torque is quite complex, but mainly depends on the local entropy and vortensity gradients. In addition, results from \citeauthor{paardekooper2010} assume unsaturated torques and low-mass planets. Since it is unclear whether the corotation torques are modelled accurately by my simulations, and calculation of the vortensity gradient is problematic, I will use the formula from \citet{tanaka2002} to obtain a ballpark estimate of the timescale for type I migration.
+
+\begin{figure}[p]
+\unitlength1in
+\begin{minipage}{0.5\linewidth}
+\centering
+\includegraphics[width=3in]{figures/chap5/baselineden_burst.eps}
+\end{minipage}
+\hspace{0.25in}
+233\begin{minipage}{0.5\linewidth}
+\centering
+\includegraphics[width=3in]{figures/chap5/tcoolden_burst.eps}
+\end{minipage}
+\vspace{0.5in}
+
+
+\begin{minipage}{0.5\linewidth}
+\centering
+\includegraphics[width=3in]{figures/chap5/baselineden_asy.eps}
+\end{minipage}
+\hspace{0.25in}
+\begin{minipage}{0.5\linewidth}
+\centering
+\includegraphics[width=3in]{figures/chap5/tcoolden_asy.eps}
+\end{minipage}
+\caption[Comparison of midplane and meridional densities for constant $t_{cool}$ and BASELINE runs]{The midplane and meridional density contours are shown for both the G1.7TC2P0.5 and BASELINE runs at two different times. The burst phase comparsion can be seen in the top two panels and the asymptotic phase comparision can be seen in the bottom two panels. The BASELINE run is on the left and G1.7TC2P0.5 is on the right. Densities are plotted in code units on a logarithmic scale.}
+\label{fig:PL:tcoolcomp}
+\end{figure}
+
+Equation (70) of \citet{tanaka2002} gives the type I migration timescale as  
+\begin{equation}\label{eq:PL:t1mig}
+\tau_{mig} = \left ( 2.7 + 1.1 p \right)^{-1} \frac{M_\star}{m_p}\frac{M_\star}{\Sigma_p \varpi_p^2}\left( \frac{c_s}{\varpi_p \Omega_p} \right )^2 \Omega_p^{-1}.
+\end{equation}
+Here $\varpi_p$ is the object radius, $\Sigma_p$ is the surface density at that radius, $\Omega_p$ is the rotational frequency, $c_s$ is the sound speed, and $p$ is the index for the power law of the surface density distribution, that is $\Sigma = \Sigma_0 r^{-p}$. I make the further approximation that $c_s = H \Omega$. Using values from the initial G1.7TC2P0.5 disk described in \S\ref{sec:IC:initialmodel} the migration timescale for a 1 $M_J$ object at 25 AU is $\approx 70$ ORPs (20,000 years). Estimates for the migration time scale inversely with the planet mass. In \S\ref{sec:PL:holemig} and \S\ref{sec:PL:T0mig} I compare these estimates to migration timescales measured in the simulations.
+
+\section{The BASELINE Simulation}\label{sec:PL:baseline}
+
+The BASELINE simulation was qualitatively similar to the G1.7TC2P0.5 simulation from chapter \ref{chap:compare}. The major differences between the setup of the simulations were the azimuthal resolution, the cooling algorithm used, and the equation of state used, the latter two are discussed in detail in \S\ref{sec:PL:sims}. One can also find a detailed discussion on the effects of different cooling algorithms in \citet{boley2006}. Even with these differences, figure \ref{fig:PL:tcoolcomp} shows that the density structures were not too different at the burst onset and in the asymptotic phase. However, there were some noticeable differences between the two simulations. This section provides detailed analysis of the BASELINE run, as it is the fiducial run for comparison to the subsequent simulations with planets included. Where applicable I provide comparisons to the constant cooling case, G1.7TC2P0.5.
+
+Clearly, the BASELINE disk had much more extended spiral arms and was more extended in the $z$ direction at the onset of the burst. This, along with a slightly later burst onset, was due to the cooling time being longer when the cooling time is determined by using the radiative routines instead of setting a constant global cooling time \citep{boley2006}. Also, much of the structure was not as sharply defined (i.e. there is not as much density contrast in the spiral structures). This was also due to the typically longer cooling times seen when using radiative physics. Additionally, the increased azimuthal resolution tended to weaken low-order modes in favor of high-order ones (see chapter \ref{chap:compare}). 
+
+Figure \ref{fig:PL:baselineden} shows several midplane density snapshots of the BASELINE simulation. As in previous simulations the disk began in the axisymmetric phase, underwent a burst of GI activity, and then transitioned to a quasi-steady state, the asymptotic phase. The burst was dominated by $m = 4$ and 5 which can be seen in the density structures in figure \ref{fig:PL:baselineden} and the time evolution of the non-axisymmetric amplitudes, $A_m$, in the top panel of figure \ref{fig:PL:ambaseline}. 
+
+\begin{sidewaysfigure}
+\begin{center}
+\unitlength1in
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.0.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.1.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.2.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.3.eps}}\\
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.4.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.5.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.6.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.7.eps}}\\
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.8.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.9.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.10.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/baselineden/baselineden.11.eps}}
+\caption[Time series of midplane and meridional densities for BASELINE disk]{Midplane and meridional densities in logarithmic scale for several times in the BASELINE simulation. The axes have units of AU and the time is given in ORPs in the upper right of each panel. The series starts at $T = 0$ ORPs and proceeds left to right and top to bottom to the end of the simulation at $\approx 21$ ORPs.}
+\label{fig:PL:baselineden}
+
+\end{center}
+\end{sidewaysfigure}
+
+For the purposes of analyses of the asymptotic phase I use a time interval of 14--21 ORPs. During the asymptotic phase the disk is evolving slowly in a quasi-static state. By examining the internal energy in figure \ref{fig:PL:engbaseline} one can see that the internal energy dropped during the axisymmetric phase, then increased during the burst phase and varied a bit during the transition phase. Here the internal energy was calculated by simply summing the $\epsilon$ of all of the cells in the disk. By 14 ORPs it had settled down and continued to evolve slowly. The top panel of figure \ref{fig:PL:qbaseline} shows the azimuthally averaged Toomre $Q$ values averaged over 2 ORP intervals. As with previous Toomre $Q$ plots I assumed $\kappa = \Omega$. By looking at the Toomre $Q$ values in figure \ref{fig:PL:qbaseline} one can see that the Toomre $Q$ has settled into a stable state by 14 ORPs.
+
+\begin{figure}[p]
+\centering
+\subfigure{\includegraphics[scale=0.7]{figures/chap5/amgrowthbaseline_15AU.eps}}\\
+\subfigure{\includegraphics[scale=0.7]{figures/chap5/ambaseline_5AU_14ORP.eps}}
+\caption[NEED TAGLINE]{(Top) Fourier components $A_m$ as a function of time for $m = 1 - 6$. The amplitudes are shown from the initial models through the asymptotic phase. Contribution to the $A_m$ components is only calculated for $\varpi > 15$AU due to contamination from a spurious $m = 1$ signal. (Bottom) Time-averaged values of $A_m$ for the BASELINE simulation. The $A_m$ values are averaged over the interval $14 -21$ ORPs. The ``error bars'' on each $m$-value represent the RMS fluctuations about the time-averaged mean. The plot depicts $m$-values from $1$ to $256$ on a logarithmic scale.}
+\label{fig:PL:ambaseline}
+\end{figure}
+
+The asymptotic phase of the BASELINE run was dominated by low-order modes. The time averaged $\langle A_m \rangle$ values, averaged from 14 to 21 ORPs, are displayed in figure \ref{fig:PL:ambaseline}. These values show the typical spectrum of amplitudes, with fairly small rms deviations. The summed value of the amplitudes $\left< A_\Sigma \right> = 1.43$, see table \ref{tbl:PL:amhole}, which is slightly smaller than the  values seen in the simulations from \S\ref{sec:IC:resolution}, again this is most likely due to the difference in cooling algorithms used.  The top panel of figure \ref{fig:PL:torquebaseline} shows the torque profile of the disk as a function of radius averaged from 14 to 21 ORPs. The torque was dominated by low-order modes ($m = 1-4$), which is similar to the analysis of previous disks. The torque shows a particularly strong peak near 23 AU, this is mirrored in the $\alpha$ plot in the bottom panel of figure \ref{fig:PL:torquebaseline}. The dashed lines in this panel represent the Gammie predictions for a $t_{cool} = 2$ disk with a $\gamma = 5/3$ adiabatic index. The disk $\alpha$ was in agreement with the Gammie prediction between $\sim\!20$ and 33 AU. The bottom panel of figure \ref{fig:PL:qbaseline} shows columnwise cooling times averaged over 2 ORP intervals for several intervals. The cooling time for a column was determined by summing the total internal energy of an annulus and dividing by the flux lost from that annulus. that is 
+\begin{equation}
+t_{cool} = \frac{\int_0^\infty\!\! \int_0^{2\pi} \epsilon \, \dif \phi \,\dif z}{\int_0^\infty \!\! \int_0^{2\pi} \nabla \boldsymbol{\cdot F} \, \dif\phi\,\dif z}.
+\label{eq:PL:columncool}
+\end{equation}
+Over the interval where the disk $\alpha$ is in agreement with Gammie's prediction, 20 to 33 AU, the cooling times ranged from 1.5 to 3.5 ORPs and the disk behaved approximately like a $\gamma = 5/3$ polytropic gas, so the agreement is not surprising. However, outside this area of agreement the cooling times were generally longer and the $\alpha$ values were smaller than would be predicted by $t_{cool} =2$. It is also interesting to note that the region where the torque peaks, $\sim\!23$ AU, the cooling times stayed roughly consistent around 3 ORPs, while elsewhere in the disk the cooling times were increasing as the disk evolved.
+
+This region is key since it is the area corresponding to the co-rotation radius of the dominant low-order modes in the disk. Figure \ref{fig:PL:periodbaseline} displays the periodograms for the $m=1-4$ modes of the BASELINE simulation. One can observe clear broad stripes of power in the $m = 2$, 3 and 4 periodograms around a pattern speed of 1.3/ORP, additionally several strong clumps of power are evident in $m=1$. These stripes of power have co-rotation radii ranging from 26 -- 29 AU. This radial range corresponds to the range over which the cooling times did not change and the Toomre $Q$ remained constant in the asymptotic phase. This is probably due to the fact that the modes could couple strongly to the disk at the co-rotation radii and were able to effectively transport energy to other areas of the disk.
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/baseline_toteng.eps}
+\caption[NEED TAGLINE]{Total disk internal energy normalized to the initial value of the BASELINE simulation. The phases of evolution can be seen in the various components. The initial drop occurs in the axisymmetric phase, the increase occurs during the burst, followed by some variations in the transition phase and a slow decline in the asymptotic phase.}
+\label{fig:PL:engbaseline}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\subfigure{\includegraphics[scale=0.7]{figures/chap5/qplot_baseline.eps}}\\
+\subfigure{\includegraphics[scale=0.7]{figures/chap5/columncool_baseline.eps}}
+\caption[NEED TAGLINE]{Plots show the midplane Toomre $Q$ distribution (top) and columnwise cooling times (bottom) for a range of times throughout the asymptotic phase of the BASELINE simulation. Cooling times are calculated using equation \eqref{eq:PL:columncool}. Values are averaged over several $2$ ORP intervals.}
+\label{fig:PL:qbaseline}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\subfigure{\includegraphics[scale=0.7]{figures/chap5/torque_baseline.eps}}\\
+\subfigure{\includegraphics[scale=0.7]{figures/chap5/alpha_baseline.eps}}
+\caption[Torque and $\alpha$ measurement for the asymptotic phase of the BASELINE simulation]{Torque profiles (top) and $\alpha$ profiles (bottom) averaged from $14$ to $21$ ORPs for the BASELINE simulation. Total torques are shown as well as contributions from sums of various $m$-values. Shown for comparison in the $\alpha$ plot are curves predicted by \citeauthor{gammie2001} with $t_{cool} = 2$ ORPs. The upper curve assumes a self-gravitating disk; the lower curve assumes gravity is due to the star alone.}
+\label{fig:PL:torquebaseline}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\subfigure{\includegraphics[scale=0.325]{figures/chap5/baseline.m1.eps}}
+\subfigure{\includegraphics[scale=0.325]{figures/chap5/baseline.m2.eps}}\\
+\subfigure{\includegraphics[scale=0.325]{figures/chap5/baseline.m3.eps}}
+\subfigure{\includegraphics[scale=0.325]{figures/chap5/baseline.m4.eps}}
+\caption[NEED TAGLINE]{Periodograms for the BASELINE simulation measured using data from $14$ to $21$ ORPs, $m = 1-4$ are presented here. The color scale represents relative power with purple being the smallest  and red/white being the largest, in this case the relative power is the important measure as opposed to the absolute numbers.}
+\label{fig:PL:periodbaseline}
+\end{figure}
+
+\section{The Asymptotic Phase Simulations}\label{sec:PL:10ORP}
+
+To study how a GI active disk would respond to a planet, and in turn, how the planet would be affected by the disk, I performed three simulations where I inserted a planet into a disk that was already GI active. The planets were all inserted at the same time into the BASELINE disk, $\approx 10.54$ ORPs, at a radius of 25 AU. This radius was chosen because it is near the co-rotation radius of the low-order global modes seen in the BASELINE simulation, see figure \ref{fig:PL:periodbaseline}. The planets were initially given a circular velocity and were inserted at $\phi = 0$. The difference between the three simulations was the mass of the planet inserted, I used masses of 0.3 $M_J$, 1 $M_J$, and 3 $M_J$. The evolution of the planet's position was carried out using the algorithm described in \S\ref{sec:planetintegrate}. 
+
+I chose to study the effect of varying the planet mass for several reasons. The mass of the planet determines how strongly the planet couples to the disk and how strong of a gravitational influence it can have on disk structures. It is also one of the main parameters that determines type I migration rates in a laminar disk. In addition, the planet mass is the determining factor between type I and type II migration in a laminar disk. The masses I have chosen to use, 0.3 $M_J$, 1 $M_J$, and 3 $M_J$, span a range of typical planet masses and also span the type I/type II migration boundary for this disk at 25 AU. It should be noted, however, that these simulations are not entirely self-consistent. Planets of these masses can only form rapidly in a GI active disk undergoing fragmentation. As seen in the BASELINE simulation, this is not the case for this disk. However, my purpose is to study the planet-disk interaction rather than present a self-consistent scenario.
+
+\subsection{Effects in the Disk}
+
+Figures \ref{fig:PL:HOLE0.3den}, \ref{fig:PL:HOLE1den}, and \ref{fig:PL:HOLE3den} display the midplane densities for the 0.3JUP10ORP, 1JUP10ORP, and 3JUP10ORP simulations, respectively. In comparing these snapshots to those of the BASELINE run from figure \ref{fig:PL:baselineden} one can see that the density structures in the disk show very little difference for the 0.3JUP10ORP simulation, some slight variation in the density structures in the later stages of the 1JUP10ORP simulation and rather dramatic differences in the 3JUP10ORP simulation.
+
+\begin{sidewaysfigure}
+\begin{center}
+\unitlength1in
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE0.3JUPden/HOLE0.3den.0.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE0.3JUPden/HOLE0.3den.1.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE0.3JUPden/HOLE0.3den.2.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE0.3JUPden/HOLE0.3den.3.eps}}\\
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE0.3JUPden/HOLE0.3den.4.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE0.3JUPden/HOLE0.3den.5.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE0.3JUPden/HOLE0.3den.6.eps}}
+
+\caption[Time series of midplane and meridional densities for 0.3JUP10ORP disk]{Midplane and meridional densities in logarithmic scale for several times in the 0.3JUP10ORP simulation. The axes have units of AU and the time is given in ORPs in the upper right of each panel. The series starts at $T = 10.54$ ORPs and proceeds left to right and top to bottom to the end of the simulation at $\approx 21$ ORPs. The black diamond in each of the panels indicates the location of the planet.}
+\label{fig:PL:HOLE0.3den}
+
+\end{center}
+\end{sidewaysfigure}
+
+\begin{sidewaysfigure}
+\begin{center}
+\unitlength1in
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE1JUPden/HOLE1den.0.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE1JUPden/HOLE1den.1.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE1JUPden/HOLE1den.2.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE1JUPden/HOLE1den.3.eps}}\\
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE1JUPden/HOLE1den.4.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE1JUPden/HOLE1den.5.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE1JUPden/HOLE1den.6.eps}}
+
+\caption[Time series of midplane and meridional densities for 1JUP10ORP disk]{Midplane and meridional densities in logarithmic scale for several times in the 1JUP10ORP simulation. The axes have units of AU and the time is given in ORPs in the upper right of each panel. The series starts at $T = 10.54$ ORPs and proceeds left to right and top to bottom to the end of the simulation at $\approx 21$ ORPs. The black diamond in each of the panels indicates the location of the planet.}
+\label{fig:PL:HOLE1den}
+
+\end{center}
+\end{sidewaysfigure}
+
+\begin{sidewaysfigure}
+\begin{center}
+\unitlength1in
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE3JUPden/HOLE3den.0.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE3JUPden/HOLE3den.1.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE3JUPden/HOLE3den.2.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE3JUPden/HOLE3den.3.eps}}\\
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE3JUPden/HOLE3den.4.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE3JUPden/HOLE3den.5.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/HOLE3JUPden/HOLE3den.6.eps}}
+
+\caption[Time series of midplane and meridional densities for 3JUP10ORP disk]{Midplane and meridional densities in logarithmic scale for several times in the 3JUP10ORP simulation. The axes have units of AU and the time is given in ORPs in the upper right of each panel. The series starts at $T = 10.54$ ORPs and proceeds left to right and top to bottom to the end of the simulation at $\approx 21$ ORPs. The black diamond in each of the panels indicates the location of the planet.}
+\label{fig:PL:HOLE3den}
+
+\end{center}
+\end{sidewaysfigure}
+
+Additionally the planet motion was very different from one planet mass to another. In the 0.3JUPT10 simulation the planet more or less followed the density structures of the disk and actually ended up migrating outward from its original radius of 25 AU. Both the planets in the 1JUPT10 and 3JUPT10 simulations migrated inward, but the planet motion in the 1JUPT10 simulation was much more sporadic as the planet did not disrupt the disk structures very much and in turn was more heavily influenced by them. The 3JUPT10 motion was much more steady as it migrated inward, and disrupted disk structures as it passed through them. In all cases the planets tended to follow the spiral arms in the disk and spent most of the time in the spiral arms. The planets tended to be overtaken by the spiral arms and then ``ride'' the spiral arm inward.
+
+Upon examining the Toomre $Q$ values and columnwise cooling times for each of the simulations I found a similar pattern. The Toomre $Q$ values and columnwise cooling times were nearly indistinguishable from those in figure \ref{fig:PL:qbaseline} for the 0.3JUP10ORP and 1JUP10ORP simulations. However, the 3JUP10ORP simulation showed dramatic differences as can be seen in figure \ref{fig:PL:qHOLE3JUP}. In the BASELINE simulation the cooling times increased in the 10 -- 20 AU range much more than they did in regions beyond 25 AU. This resulted in a steep gradient in cooling times from 20 -- 30 AU. It is also in this region that one can see a ``bump'' developed in the Toomre $Q$ values as the disk was more stable in this region. This feature is not present at the same location in figure \ref{fig:PL:qHOLE3JUP}. Although the cooling times did not increase as dramatically in the 3JUP10ORP simulation as in the BASELINE simulation, there is still an noticeable increase in cooling time in figure \ref{fig:PL:qHOLE3JUP}. This also resulted in a steep gradient, however the gradient occurred in the 15 -- 20 AU region. One can also see that a  ``bump'' similar to the one in the BASELINE Toomre $Q$, is present over this region in the Toomre $Q$ plot.
+
+\begin{figure}[p]
+\centering
+\subfigure{\includegraphics[scale=0.7]{figures/chap5/qplot_3JUPT10.eps}}\\
+\subfigure{\includegraphics[scale=0.7]{figures/chap5/columncool_3JUPT10.eps}}
+\caption[NEED TAGLINE]{Plots show the midplane Toomre $Q$ distribution (top) and columnwise cooling times (bottom) for a range of times throughout the asymptotic phase of the 3JUP10ORP simulation. Cooling times are calculated using equation \eqref{eq:PL:columncool}. Values are averaged over several $2$ ORP intervals.}
+\label{fig:PL:qHOLE3JUP}
+\end{figure}
+
+The differences between the different masses can also be seen in the total internal energy. Figure \ref{fig:PL:enghole} shows the evolution of the internal energy for each of the simulations compared to the BASELINE run. One can see that the 0.3JUP10ORP and 1JUP10ORP simulations have minimal variation from the BASELINE run in the evolution of their internal energy. On the other hand, the 3JUP10ORP simulation has a dramatic increase in the internal energy compared to the other runs. As the more massive planet migrates inward and disrupts the existing density structures it also heats the disk, resulting in a increased total internal energy. This also explains the columnwise cooling curves as the planet's passage heats the disk interior to 25 AU, its luminosity increases resulting in an overall decrease of the cooling time.
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/hole_toteng.eps}
+\caption[NEED TAGLINE]{Total disk internal energy normalized to the initial value of the BASELINE simulation. The simulations with planets included at $T = 10$ ORPs have been included and normalized to the initial value of the BASELINE simulation. The 0.3JUP10ORP (blue) and 1JUP10ORP (green) simulations follow a similar trajectory to the BASELINE simulation throughout the asymptotic phase. However, the 3JUP10ORP (red) simulation varies substantially due to the internal energy generated by the planet's motion.}
+\label{fig:PL:enghole}
+\end{figure}
+
+\begin{table}
+\centering
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular*}{0.75\textwidth}{@{\extracolsep{\fill}}ccccc}
+\hline
+$l_{max}$&$\left<A_\Sigma\right>$&$\left<A_{2-7}\right>/\left<A_\Sigma\right>$\\
+\hline\hline  
+BASELINE&1.43&0.59\\ 
+0.3JUP&1.42&0.60\\ 
+1JUP&1.44&0.58\\ 
+3JUP&1.46&0.58\\
+\hline
+\end{tabular*}
+\vspace{0.1in}
+\caption[NEED TAGLINE]{Temporally and spatially averaged summed and relative amplitudes for each of the simulations with planets injected at $T = 10$ ORPs and the BASELINE simulation. All values are averaged over the time interval from $14$ to $21$ ORPs. The $\left<A_m\right>$ quantities are averaged from $5$ AU to the outer edge of the grid.}
+\label{tbl:PL:amhole}
+\end{table} 
+\renewcommand{\arraystretch}{1}
+
+Although the density structures, cooling times, and internal energies show a distinct difference between the 3JUP10ORP and the BASELINE, 0.3JUP10ORP, and 1JUP10ORP simulations, the spectrum of non-axisymmetric amplitudes, $A_m$, are nearly identical for all of the simulations. After I plotted the $A_m$ spectrum of the simulations with planets from 14 -- 21 ORPs to compare to the bottom panel of figure \ref{fig:PL:ambaseline}, the spectra all fell within the RMS fluctuations of the BASELINE simulation. This can also be seen in table \ref{tbl:PL:amhole} the summed values of the non-axisymmetric amplitudes and the fractional amplitude in low-order modes differ by at most 3\%. The fact that these amplitudes are so similar indicates that the presence of a planet has little effect on the strength of non-axisymmetric disturbances i.e. the $\delta \rho/ \rho$. This is in agreement with the Toomre $Q$ values which indicate that over the GI active region there is little variation in the $Q$ values (see figures \ref{fig:PL:qbaseline} and \ref{fig:PL:qHOLE3JUP}), and therefore the strength of GIs. However, the planet may strongly affect the coherence of non-axisymmetric structures.
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/torque_hole.eps}
+\caption[NEED TAGLINE]{Torque profiles averaged from $14$ to $21$ ORPs for the BASELINE (black), 0.3JUP10ORP (blue), 1JUP10ORP (green), and 3JUP10ORP (red) simulations. Total torques are shown as well as contributions from sums of various $m$-values. The 3JUP10ORP simulation shows the strongest deviation from the BASELINE simulation.}
+\label{fig:PL:torquehole}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/alpha_hole.eps}
+\caption[NEED TAGLINE]{Effective Shakura-Sunyaev $\alpha$-values computed for the BASELINE (black), 0.3JUP10ORP (blue), 1JUP10ORP (green), and 3JUP10ORP (red) simulations averaged over the asymptotic phase from $14$ to $21$ ORPs. Shown for comparison are curves predicted by \citeauthor{gammie2001} with $t_{cool} = 2$ ORPs. The upper curve assumes a self-gravitating disk; the lower curve assumes gravity is due to the star alone.}
+\label{fig:PL:alphahole}
+\end{figure}
+
+As noted in \S\ref{sec:IC:masstransport} the effectiveness of GIs in transporting mass in a disk is dependent on both the strength of the GIs and the coherence of the non-axisymmetric structures they produce. The investigation of the non-axisymmetric amplitudes in the preceding paragraphs tends to indicate that the strength of the GI activity is not greatly affected by the presence of a planet. However, when I examined the torques produced in the disk it was obvious that the mass transport rates were greatly reduced for the most massive planet, indicating that the presence of a planet can have a strong effect on the coherence of the spiral structures produced by GI activity. Figure \ref{fig:PL:torquehole} shows the total and component torque profiles averaged from 14 -- 21 ORPs for the BASELINE, 0.3JUP10ORP, 1JUP10ORP, and 3JUP10ORP simulations. Clearly, the inclusion of a 0.3 or 1 $M_J$ planet has a very small effect on the overall torque. The 0.3 $M_J$ planet did cause the peaks of the torque to be shifted to slightly larger radii and enhanced the $m = 3$ torque over the $m = 2$ torque slightly. Additionally, the 1 $M_J$ planet caused an overall decrease of the torque for all $m$ values, but this variation was quite small i.e. < 10\%. In fact, even the shape of the torque profiles for both of these simulations remained largely unchanged from the BASELINE simulation for all $m$ values. Because the torque profiles for these disks were so similar and the disk structure was largely the same, the $\alpha$ profiles are also very similar as can be seen in figure \ref{fig:PL:alphahole}.
+
+The 3 $M_J$ planet presented a much different case. As one can see in figure \ref{fig:PL:torquehole} not only did the magnitude of the torque decrease dramatically for all $m$ values over a large range of radii, but the fundamental shape of the torque profile changed as well. Instead of a sharp peak in the profile one can see a broad plateau. This change in the profile was most dramatic for $m > 2$. Obviously, such a large decrease in the torque resulted in a dramatic decrease in the $\alpha$ values, as can be seen in figure \ref{fig:PL:alphahole}. The difference in the torque profile and $\alpha$ can be attributed to two main causes. First, the low-order modes are less coherent overall, and secondly, the co-rotation radius of the low-order coherent modes has been moved to larger radii. To study these drivers, one must examine the low-order periodograms.
+
+\begin{figure}[p]
+\centering
+\subfigure{\includegraphics[scale=0.325]{figures/chap5/HOLE3JUP.m1.eps}}
+\subfigure{\includegraphics[scale=0.325]{figures/chap5/HOLE3JUP.m2.eps}}\\
+\subfigure{\includegraphics[scale=0.325]{figures/chap5/HOLE3JUP.m3.eps}}
+\subfigure{\includegraphics[scale=0.325]{figures/chap5/HOLE3JUP.m4.eps}}
+\caption[NEED TAGLINE]{Periodograms for the 3JUP10ORP simulation measured using data from $14$ to $21$ ORPs, $m = 1-4$ are presented here. The color scale represents relative power with purple being the smallest  and red/white being the largest, in this case the relative power is the important measure as opposed to the absolute numbers.}
+\label{fig:PL:periodHOLE3JUP}
+\end{figure}
+
+Figure \ref{fig:PL:periodHOLE3JUP} shows the $m=1-4$ periodograms for the 3JUP10ORP simulation from 14 -- 21 ORPs. When compared to the periodograms from the BASELINE simulation, see figure \ref{fig:PL:periodbaseline}, the stripes of power for the $m = 2$, 3, and 4 modes appear much thinner and have a much lower contrast to the surrounding regions of power. In addition the co-rotation radius of these stripes is $\sim\!29 - 30$ AU, compared to co-rotation radii of 26 -- 29 AU for the BASELINE simulation. This results in the spreading of the torque peak in figure \ref{fig:PL:torquehole}.
+
+\subsection{Planet Motions}\label{sec:PL:holemig}
+
+Of course, studying how the insertion of the planets affects the disk dynamics and structure of the GIs is only half of the story. The GI activity in the disk can play a strong role in the migration of the planet compared to what it's migration pattern would be in a laminar disk. In  \S\ref{sec:PL:laminar} I explained what linear migration theory would predict for a planet's motion in a laminar disk. However, for the GI active disks I inserted these planets into the outcome was quite different from this prediction. Figure \ref{fig:PL:ahole} displays the radial motion of each of the planets as well as the semi-major axis for each orbit. I measured an orbit as successive crossings of $\phi = 0$. Although this is not strictly accurate since the orbits of the planets precess throughout the evolution, it was the most accurate measure I could devise. Also, the orbits were nearly circular and had a very slow rate of precession when viewed in animations, so the orbit measurement is likely not terribly flawed.
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/HOLEplA.eps}
+\caption[NEED TAGLINE]{Plot of the radial positions of the planets in the 0.3JUP10ORP (blue), 1JUP10ORP (green), and 3JUP10ORP (red) simulations. The lines represent the radial position at each time while the diamonds show the radius of the semi-major axis for each orbit centered at the temporal midpoint of the orbit.}
+\label{fig:PL:ahole}
+\end{figure}
+
+One can see that the motion of the planets varied dramatically with the 0.3 $M_J$ planet actually moving outward from 25 to 40 AU over the course of the simulation. All of the planets have moved significantly in radius in a short period of time, $\sim\!10$ ORP or 2500 years, compared to typical type I $\sim\!10^4$ years, or type II $\sim\!10^5$ years, migration timescales. Each of the planets followed a radial migration pattern based on its mass. The orbit of the 0.3 $M_J$ was heavily influenced by the GI structures in the disk causing it to make several rapid changes in radius when it encountered spiral structures produced by the GIs. One such instance can be seen between 17 and 18 ORPs. The orbit of the 1 $M_J$ planet was similarly affected by GI structures, however not to the extent that the 0.3 $M_J$ planet was. The spiral structures caused the planet to move in and out in radius as it encountered spiral arms, an example can be seen near 16.5 ORPs. Finally, the orbit of the 3 $M_J$ planet was largely unaffected by the GI structures, as I outlined in the previous sections the planet had a much greater effect on the disk structures. The 3 $M_J$ planet migrated inward fairly rapidly with very little deviation.
+
+The eccentricity of the planet orbits followed a similar pattern to their radial migration. Figure \ref{fig:PL:ehole} plots the eccentricity of each of the orbits whose semi-major axes are shown in figure \ref{fig:PL:ahole}. All of the planets begain on a roughly circular orbit, however due to assumptions in calculating the circular velocity, i.e. assuming the disk mass was a point mass located at the grid center, the planets begin with a small eccentricity $\approx 0.07$. In a laminar disk, the transfer of angular momentum between the disk and planet would act to regularize the orbit and drive the eccentricity to 0. However, the 0.3 $M_J$ planet shows a marked increase in the eccentricity as its trajectory is altered by the spiral structures caused by GIs. Commensurate with their mass the 1 and 3 $M_J$ planets showed less variation in their eccentricity, but there is still a significant amount of variation for the 1 $M_J$ planet. The 3 $M_J$ planet had the most regularized orbit as it migrated inward.
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/HOLEplE.eps}
+\caption[NEED TAGLINE]{Plotted are the eccentricities for each of the orbits plotted in figure \ref{fig:PL:ahole}. The $0.3 M_J$ planet is shown in blue, the $1 M_J$ planet is shown in green, and  the $3 M_J$ planet is shown in red.}
+\label{fig:PL:ehole}
+\end{figure}
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/HOLEplMIG.eps}
+\caption[NEED TAGLINE]{The migration timescales $\tau_{mig}$ are plotted for each of the orbits in figure \ref{fig:PL:ahole}. The 0.3JUP10ORP simulation is shown in blue, the 1JUP10ORP simulation is shown in green, and the 3JUP10ORP simulation is shown in red. The dashed lines indicate the estimated type I migration timescales for each of the planets at its starting radius of $25$ AU.}
+\label{fig:PL:mighole}
+\end{figure}
+
+To compare the planet migration timescales in GI active disks to the type I and type II migration timescale estimates, I computed the average angular momentum per orbit, $\left< j_{pl} \right >$, for each of the planets as well as the average torque on the planet $\left< T_{pl} \right> = \left< \frac{j_{pl}}{\dif t} \right>$. For each orbit I then computed an estimate of the timescale for inward migration,
+\begin{equation}
+\tau_{mig} = \frac{-\left< j_{pl} \right>}{\left < T_{pl} \right >}.
+\label{eq:PL:migtime}
+\end{equation}
+In figure \ref{fig:PL:mighole} the $\tau_{mig}$ values from equation \eqref{eq:PL:migtime} are plotted for each of the orbits of the 0.3JUP10ORP, 1JUP10ORP, and 3JUP10ORP simulations displayed in figure \ref{fig:PL:ahole}. Also plotted are the initial type I migration time scale estimates with the planets at 25 AU. The type II estimates were an order of magnitude larger and would not fit on the plot. Negative $\tau_{mig}$ values indicate outward migration, but the magnitudes are not necessarily meaningful as the timescales are simply obtained from equation \eqref{eq:PL:migtime}.
+
+Obviously, the migration rates in the GI active disk were not consistent with type I or type II migration. It should be noted that the concept of type II migration may not hold in a GI active disk as even the most massive planet I used, 3 $M_J$, showed no sign of opening a gap. It could be that gap formation is impossible in a GI active disk, certainly the gap formation criteria are different. The major disparities with the type I predictions were the migration rates, which were generally much faster than predicted, and the direction of migration. The median migration timescales were $-21$ ORPs for the 0.3 $M_J$ planet from a distribution of 17 orbits, $-12$ ORPs for the 1 $M_J$ planet from a distribution of 22 orbits and, 15 ORPs for the 3 $M_J$ planet from a distribution of 30 orbits. I used the median values because there were a few outliers in each of the simulations with very large positive or negative timescales, representing orbits in which the migration rate was very small. These few orbits tended to skew the average migration timescales, but I found the median measurement to give a more accurate picture of the data.
+
+
+\section{The Initial Disk Simulations}\label{sec:PL:0ORP}
+
+The simulations presented in the previous section focus on the interaction of a planet and a GI active disk. In order to study how the presence of a planet might effect the onset of GIs I performed several simulations in which a planet was embedded in an initial equilibrium disk before GIs had a chance to grow. I used the same initial disk as in the BASELINE simulation, which was marginally stable. I performed three simulations with different planet masses 0.3 $M_J$, 1 $M_J$, and 3 $M_J$. The planets were all inserted at a radius of 25 AU and $\phi = 0$, this radius was chosen for comparison to the asymptotic phase simulations. The planets were all initially given a circular velocity.
+
+\subsection{Effects in the Disk}
+
+Figures \ref{fig:PL:T00.3den}, \ref{fig:PL:T01den}, and \ref{fig:PL:T03den} show several snapshots of the midplane and meridional densities for the 0.3JUP0ORP, 1JUP0ORP, and 3JUP0ORP simulations, respectively. For the purpose of comparison, the times for each of the snapshots are roughly equivalent to the times used for the BASELINE simulation in figure \ref{fig:PL:baselineden}. In comparing the simulations with planets to the BASELINE simulation there are several obvious differences that can be seen from the density maps.
+
+First, the burst of GI activity occurs sooner in the simulations with planets. By comparing the panels in which the instabilities first appear, the second panel in figure \ref{fig:PL:baselineden} and third panels in figures \ref{fig:PL:T00.3den}, \ref{fig:PL:T01den}, and \ref{fig:PL:T03den}, one can see that GIs have begun to set in by 5 ORPs in the baseline simulation and by 3.5 ORPs in the planet simulations. Furthermore, as the planet mass is increased the onset of GIs occurs sooner. Comparing the 3.5 ORP snapshot (third panel) of the simulations with planets one can see that for increased planet mass the GIs are more developed at the same simulation time.
+
+\begin{sidewaysfigure}
+\begin{center}
+\unitlength1in
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T00.3JUPden/T00.3den.0.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T00.3JUPden/T00.3den.1.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T00.3JUPden/T00.3den.2.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T00.3JUPden/T00.3den.3.eps}}\\
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T00.3JUPden/T00.3den.4.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T00.3JUPden/T00.3den.5.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T00.3JUPden/T00.3den.6.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T00.3JUPden/T00.3den.7.eps}}
+
+\caption[Time series of midplane and meridional densities for 0.3JUP0ORP disk]{Midplane and meridional densities in logarithmic scale for several times in the 0.3JUP0ORP simulation. The axes have units of AU and the time is given in ORPs in the upper right of each panel. The series starts at $T = 0.08$ ORPs and proceeds left to right and top to bottom to the end of the simulation at $\approx 10$ ORPs. The black diamond in each of the panels indicates the location of the planet.}
+\label{fig:PL:T00.3den}
+
+\end{center}
+\end{sidewaysfigure}
+
+\begin{sidewaysfigure}
+\begin{center}
+\unitlength1in
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T01JUPden/T01den.0.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T01JUPden/T01den.1.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T01JUPden/T01den.2.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T01JUPden/T01den.3.eps}}\\
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T01JUPden/T01den.4.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T01JUPden/T01den.5.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T01JUPden/T01den.6.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T01JUPden/T01den.7.eps}}
+
+\caption[Time series of midplane and meridional densities for 1JUP0ORP disk]{Midplane and meridional densities in logarithmic scale for several times in the 1JUP0ORP simulation. The axes have units of AU and the time is given in ORPs in the upper right of each panel. The series starts at $T = 0.08$ ORPs and proceeds left to right and top to bottom to the end of the simulation at $\approx 10$ ORPs. The black diamond in each of the panels indicates the location of the planet.}
+\label{fig:PL:T01den}
+
+\end{center}
+\end{sidewaysfigure}
+
+\begin{sidewaysfigure}
+\begin{center}
+\unitlength1in
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T03JUPden/T03den.0.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T03JUPden/T03den.1.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T03JUPden/T03den.2.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T03JUPden/T03den.3.eps}}\\
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T03JUPden/T03den.4.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T03JUPden/T03den.5.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T03JUPden/T03den.6.eps}}
+\subfigure{\includegraphics[width=0.23\textwidth]{figures/chap5/T03JUPden/T03den.7.eps}}
+
+\caption[Time series of midplane and meridional densities for 3JUP0ORP disk]{Midplane and meridional densities in logarithmic scale for severdal times in the 3JUP0ORP simulation. The axes have units of AU and the time is given in ORPs in the upper right of each panel. The series starts at $T = 0.08$ ORPs and proceeds left to right and top to bottom to the end of the simulation at $\approx 10$ ORPs. The black diamond in each of the panels indicates the location of the planet.}
+\label{fig:PL:T03den}
+
+\end{center}
+\end{sidewaysfigure}
+
+Second, the addition of a planet changes the dominant mode in the burst phase. One can see that the burst in the BASELINE simulation was dominated by $m = 4$ and 5 armed spirals in figure \ref{fig:PL:baselineden}. This is also reflected in the $A_m$ versus time plot in figure \ref{fig:PL:ambaseline}. In contrast, the burst phase of the simulations with planets was dominated by $m = 3$ armed spirals, seen in the third and fourth panels of figures \ref{fig:PL:T00.3den}, \ref{fig:PL:T01den}, and \ref{fig:PL:T03den}. Also, figure \ref{fig:PL:amt} shows the growth of non-axisymmetric amplitudes for each of the simulations with planets. One can clearly see that the non-axisymmetric structure grows more rapidly that in figure \ref{fig:PL:ambaseline} and is dominated by $m = 3$.
+
+\begin{figure}[p]
+\centering
+\unitlength1in
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.5]{figures/chap5/amgrowth0.3JUP_15AU.eps}
+\end{minipage}\\
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.5]{figures/chap5/amgrowth1JUP_15AU.eps}
+\end{minipage}
+\begin{minipage}[t]{6.3in}
+\centering
+\includegraphics[scale=.5]{figures/chap5/amgrowth3JUP_15AU.eps}
+\end{minipage}
+\caption[Fourier components as a function of time for different planet masses inserted at $T = 0$]{Each panel shows the Fourier components $A_m$ as a function of time for $m = 1 - 6$. The 0.3JUP0ORP, 1JUP0ORP, and 3JUP0ORP simulations are shown from top to bottom. The amplitudes are shown from the initial models through the asymptotic phase. Contribution to the $A_m$ components is only calculated for $\varpi > 15$AU due to contamination from a spurious $m = 1$ signal.}
+\label{fig:PL:amt}
+\end{figure}
+
+Another interesting feature of these simulations was the fact that the disks with 0.3 $M_J$ and 1 $M_J$ planets were much more radially extended than the BASELINE and 3JUP0ORP disks during the burst phase and the time just after the burst. To investigate this further I plotted the average torques from 6 to 10 ORPs, I did not use times during the initial onset of the burst in the simulations with planets to avoid skewing the average with extremely large torques. However, this could not be avoided for the BASELINE simulation because the burst phase occurs later. This contamination from the early burst phase is evident in the torque plots, see figure \ref{fig:PL:torqueT0}, as the BASELINE simulation has an overall torque that is larger than the other simulations. One key feature of figure \ref{fig:PL:torqueT0} is the depressed torque values for the 3JUP0ORP simulation, which is in keeping with the midplane density plots because the disk does not expand much during the burst phase. 
+
+Another noteworthy feature is the torque of the sum of $m = 1$, 2 and 3 for the 0.3JUP0ORP and 1JUP0ORP simulations. These curves are similar to the BASELINE simulation in shape and magnitude, which means that the post-burst torques were as large as the BASELINE torques with the early burst included. Furthermore, the curve representing the sum of the torque from the $m = 1$ and 2 modes is smaller for the 0.3JUP0ORP simulation and dramatically smaller for the 1JUP0ORP simulation when compared to the BASELINE simulation. This means that the torque from the $m= 3$ mode was significantly larger in the simulations with 0.3 $M_J$ and 1 $M_J$ massed planets, and the torque from the $m = 2$ mode was significantly smaller.
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/torque_T0.eps}
+\caption[NEED TAGLINE]{Torque profiles averaged from $6$ to $10$ ORPs for the BASELINE (black), 0.3JUP0ORP (blue), 1JUP0ORP (green), and 3JUP0ORP (red) simulations. Total torques are shown as well as contributions from sums of various $m$-values. The 3JUP0ORP simulation shows the strongest deviation from the BASELINE simulation.}
+\label{fig:PL:torqueT0}
+\end{figure}
+
+The 0.3JUP0ORP and 1JUP0ORP simulations had a $m = 3$ non-axisymmetric structure that was significantly stronger, i.e. larger non-axisymmetric amplitude (see figure \ref{fig:PL:amt}), more coherent, and purer, i.e. there were fewer competing modes. My hypothesis is that these characteristics caused there to be a greater transfer of angular momentum in the disk during the burst, which, in turn, caused a greater radial extension of the disks during the burst. Clearly, the presence of a massive planet in a marginally unstable equilibrium disk can dramatically affect the onset and evolution of GIs in the disk.
+
+\subsection{Planet Motions}\label{sec:PL:T0mig}
+
+As with the asymptotic phase simulations I analyzed the motions of the planets for each of the initial disk simulations. Unlike the asymptotic phase simulations, the disks the planets were inserted into were initially nearly laminar, so one might expect them to follow the migration patterns predicted by laminar migration theory. In fact, the planets do roughly follow the predicted pattern as can be seen in figure \ref{fig:PL:aT0}. This figure shows the radial position of each of the planets from 0 -- 10 ORPs and the semi-major axis of each orbit, as computed by counting successive crossings of $\phi = 0$. At the beginning of the simulations, before the GIs have had a chance to develop, the planets migrated inward at rates roughly corresponding to their masses. The 0.3 $M_J$ planet moved inward more slowly than the other two planets and the 1 $M_J$ planet migrated at a slightly slower, but nearly the same rate as the 3 $M_J$ planet. This was likely due to the fact that the 3 $M_J$ planet began interacting with non-axisymmetric structures in the disk very rapidly, even before the disk began to show signs of global instabilities. This can be seen in the second panel of figure \ref{fig:PL:T03den} as compared to the second panel of figure \ref{fig:PL:T01den}. Notice the two armed spiral structure that has interacted much more strongly with the 3 $M_J$ planet than the 1 $M_J$ planet. 
+
+However, once the burst of GI activity began the motion of the planets deviated significantly from their original trajectories. The burst initially appeared to drive all of the planets outward, with the most significant shift in the most massive planet, but then the burst caused the planets to move rapidly inward (see the 4.5 -- 6 ORP stretch of time in figure \ref{fig:PL:aT0}). Again, the most massive planet moved the most quickly while the least massive planet moved least quickly. Following the burst, the planets tended to move radially in a somewhat random fashion with little dependence on planet mass. The exception to this was the 0.3 $M_J$ planet that interacted strongly with a $m =2$ pattern that grew in the disk after the burst. Around 6.5 ORPs the radial excursion of each of the 0.3 $M_J$ planet's orbits increased dramatically, at the same time the dominant $m = 3$ mode declined and a $m =2$ mode began to grow (see figure \ref{fig:PL:amt}). The planet interacted strongly with this $m = 2$ mode (see panels 6, 7, and 8 of figure \ref{fig:PL:T00.3den}), which caused the eccentricity of its orbit to increase dramatically as can be seen in figure \ref{fig:PL:eT0}.
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/T0plA.eps}
+\caption[NEED TAGLINE]{Plot of the radial positions of the planets in the 0.3JUP0ORP (blue), 1JUP0ORP (green), and 3JUP0ORP (red) simulations. The lines represent the radial position at each time while the diamonds show the radius of the semi-major axis for each orbit centered at the temporal midpoint of the orbit.}
+\label{fig:PL:aT0}
+\end{figure}
+
+Figure \ref{fig:PL:eT0} shows the evolution of eccentricities for each of the planet simulations. For the first several ORPs of evolution while the disks were nearly axisymmetric, the eccentricity remained quite small. However, at the start of the burst phase, around 3.5 ORPs, the eccentricities increased as the planets interacted with the GIs. Although this increase was measurable, it was not particularly large with typical eccentricities being $\lesssim 0.1$. Again, the 0.3 $M_J$ planet is an exception as its eccentricity rapidly increased at 6.5 ORPs due to its strong interaction with a $m = 2$ spiral structure. Clearly, the action of GIs can have a noticeable effect on planet eccentricities.  With GIs as a possible mechanism of increasing the orbital eccentricity of a planet, this could help explain the relatively large median eccentricity, $e = 0.27$ \citep{eggenberger2004}, observed in extrasolar planets. Perhaps with a longer baseline of simulation time, all of the planets would interact strongly with a non-axisymmetric structure as the 0.3 $M_J$ planet did, as its interaction seemed to be a coincidence.
+
+\begin{figure}[p]
+\centering
+\includegraphics[scale=0.9]{figures/chap5/T0plE.eps}
+\caption[NEED TAGLINE]{Plotted are the eccentricities for each of the orbits plotted in figure \ref{fig:PL:aT0}. The $0.3 M_J$ planet is shown in blue, the $1 M_J$ planet is shown in green, and  the $3 M_J$ planet is shown in red.}
+\label{fig:PL:eT0}
+\end{figure}
+
+% Figure \ref{fig:PL:migT0} shows the migration times as computed from equation \eqref{eq:PL:migtime} for each of the orbits shown in figure \ref{fig:PL:aT0}
+
+% \begin{figure}[p]
+% \centering
+% \includegraphics[scale=0.9]{figures/chap5/T0plMIG.eps}
+% \caption[NEED TAGLINE]{The migration timescales $\tau_{mig}$ are plotted for each of the orbits in figure \ref{fig:PL:aT0}. The 0.3JUP0ORP simulation is shown in blue, the 1JUP0ORP simulation is shown in green, and the 3JUP0ORP simulation is shown in red. The dashed lines indicate the estimated type I migration timescales for each of the planets at its starting radius of 25 AU.}
+% \label{fig:PL:migT0}
+% \end{figure}
+
+% Average migration times 0.3JUP 16 ORPs averaged over 26 orbits, 1JUP 32 ORPs averaged over 25 orbits and 3JUP 16 ORPs averaged over 24 orbits  Angular momentum densities of average gas vs planet 1:30.
+
+\section{Conclusions} \label{sec:PL:conclusion}
+
+In comparing these two series of simulations with planets, the asymptotic phase simulations and the initial disk simulations, I have shown that planets in a GI active disk can strongly influence the organization, strength and other general characteristics of GIs including the onset of instability and dominant burst modes. I have also shown that GIs can have a large impact on the motion of a planet in a GI active disk in some cases reversing the direction of migration predicted by laminar disk theory. I have also found that GIs can increase, in some cases dramatically, the eccentricity of a planet's orbit. The clear distinction between type I and type II migration was not seen in any of the simulations I performed. In no cases did a gap form around the planet, and I was unable to even detect the beginnings of gap formation. 
+
+Clearly, these simulations have only scratched the surface of possibilites for interactions between GIs and planets. There are a multitude of other parameters to be explored beyond planet mass and insertion time, even those two parameters have not been exhaustively explored with the simulations I have presented. Even with these modest initial investigations I have shown that the interactions between planets and GIs are significant both for the evolution of the planet and the disk it is embedded in.

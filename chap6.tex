@@ -1,0 +1,54 @@
+\chapter[Conclusion]{Conclusion} \label{chap:conclusion}
+\thispagestyle{plain}
+% \begin{spacing}{0.9}
+% \begin{flushright}
+% {\it \footnotesize You may be \textbf{a} doctor. But I'm \textbf{the} Doctor.\\ The definite article, you might say.\\}
+%  {\small -- Doctor Who, {\it Robot}}
+% \end{flushright}
+% \end{spacing}
+In endeavoring to write this dissertation I have sought to answer several key questions regarding the evolution of gravitationally unstable protoplanetary disks. I have addressed many related topics related to gravitational instabilities including the interplay between GIs and several different input parameters, GIs and stellar motion, and GIs and planetary migration. Overall I performed and analyzed 19 protoplanetary disk simulations in an attempt to answer several major questions. The key questions I have sought to answer, which I first introduced in chapter \ref{chap:intro}, were:
+\begin{itemize}
+\item How do the following affect GI onset and evolution:
+\begin{itemize}
+\item Surface density
+\item Azimuthal resolution
+\item Equation of state
+\item Initial random perturbation
+\end{itemize}
+\item What is the interplay between GI activity and stellar motion?
+\item How do GIs affect planet migration?
+\item Can planets or protoplanets trigger GIs?
+\item How does the presence of a planet or protoplanet affect the onset or characteristics of GIs? 
+\end{itemize}
+
+In this chapter I present the answers to these and other questions I have uncovered throughout this work. I also present some ideas for future directions of research and end with some concluding remarks.
+
+\section{Physical and Numerical Conditions}
+
+In chapter \ref{chap:compare} I explored the effects of varying a host of numerical and physical parameters on the evolution of GI active disks. I analyzed several disks with different initial surface density profiles, specifically $\Sigma \propto \varpi^{-1/2}$, $\Sigma \propto \varpi^{-1}$, and $\Sigma \propto \varpi^{-3/2}$. I found that in a general sense the initial surface density profile does not have a large effect on the onset, evolution, and outcome of GIs in a protoplanetary disk. However, there were several noticeable differences. Namely, as the initial surface density profile steepens, the onset of the instability is delayed and the GI activity in burst phase is measurably weaker. This, in turn, results in smaller mass transport rates during the burst and smaller $\left<A_m \right>$ amplitudes. All of the disks ended up with a surface density profile $\approx \varpi^{-5/2}$.
+
+I also presented several simulations with varied azimuthal resolution. I found that for non-fragmenting disks in the asymptotic phase of evolution the non-axisymmetric amplitude of low-order modes decreases as the azimuthal resolution increases. This, in turn, causes the disk torque and the effective gravitational $\alpha$ to decrease in the GI active region. I saw a shift of non-axisymmetric amplitude from low-order modes to high-order modes as I increased the azimuthal resolution. As higher-order modes became available with the increasing resolution, non-axisymmetric amplitude shifted to those modes. This is evident in the changing $\left<A_{2-7}\right>/\left<A_\Sigma\right>$ presented in table \ref{tbl:IC:amres}  However, also evident in table \ref{tbl:IC:amres}, is the fact that the total non-axisymmetric amplitude $\left<A_\Sigma\right>$ is largely unaffected by the variation in azimuthal resolution. I found that for the disk I studied an azimuthal resolution of $l_{max}=512$ is likely sufficient to accurately measure the disk torque and effective gravitational $\alpha$, however lower azimuthal resolution could be sufficient for disks with less GI activity. The effective gravitational $\alpha$ I measured in the $l_{max}=512$ disk is in agreement with the predictions made by \citet{gammie2001}.
+
+Further, in chapter \ref{chap:compare} I presented a study on the cooling time fragmentation limit for two different adiabatic indices. I performed these simulations to compare to the SPH simulations of \citet{rice2005} that were cooled with a $t_{cool}\Omega = \mathrm{const.}$. I found that disks with global cooling times $t_{cool} = 0.6$ and $t_{cool} = 1$ will fragment for $\gamma = 5/3$ and $\gamma = 7/5$, respectively. I estimated a critical $t_{cool}\Omega$ based on the radius at which fragments first appeared and found this estimate, $t_{cool}\Omega = 6-7$ for $\gamma = 5/3$ and $t_{cool}\Omega = 11-12$ for $\gamma = 7/5$, to be in rough agreement with \citet{rice2005}.
+
+Finally, in chapter \ref{chap:compare} I presented three simulations comparing the amplitude of the initial random perturbation given to the disks. I found that disks with larger amplitude perturbations have GI amplitudes that began to grow sooner, but less rapidly, in the disk. This is due to the fact that the larger perturbation prevented the growth of a dense, cool, low $Q$ ring that gave rise to a violent outburst of GI activity in the outer disk.
+
+\section{Stellar Motion}
+
+To answer the question of the interplay between GIs and stellar motion I performed a simulation that freed the central star by using the indirect potential method. I compared this to an otherwise identical simulation with the star artificially fixed to the center of the simulation grid. I found that, in contrast to the findings of \citet{rice2003a}, the motion of the central star in response to the action of the GIs can be significant, as much as 0.24 AU in the simulation I performed. The motion of the star and the periodicity of the GIs are clearly related as can be seen in table \ref{SMperiodtable}, however there is complex interaction between the disk and star which cannot be completely characterized without further study. 
+
+\section{Planetary Migration}
+
+In chapter \ref{chap:planet} I presented two series of simulations with planets inserted into the initial equilibrium disk or into an already GI active disk near the beginning of the asymptotic phase. I compared both series to a baseline simulation without planets. I found that the inclusion of planets strongly affected the GIs in both cases. The interaction between the planet and GIs scaled with the mass of the planet. In the cases where the planets were inserted into the initial disk I found that the presence of a planet caused the onset of GIs to occur sooner and affected which mode was dominant in the burst phase. 
+
+The GI active disks also had a dramatic effect on the motion of the planets. The migration rates measured for the planets inserted in the asymptotic phase were much larger than those predicted by laminar migration theory. Additionally, some planets actually migrated outward by following the spiral patterns generated by the GIs. Although outward migration may be possible under certain conditions in a laminar disk \citep{paardekooper2010}, the conditions are much more restrictive than those under which I found outward migration. In addition to affecting migration rates and directions, I found that GIs can drastically increase the eccentricity of a planet orbit if the planet strongly interacts with a non-axisymmetric mode, as it did in the 0.3JUP0ORP simulation.
+
+\section{Future Work}
+
+There are many possibilites to extend the work presented in this dissertation. Further resolution studies could be preformed to augment the results from \S\ref{sec:IC:resolution} including going to higher azimuthal resolution, and studying the effect of varied $\varpi$ and $z$ resolution. Several studies can be conducted with the current planet simulation capabilities of the CHYMERA code, i.e. a single massive planet. By varying the radius at which I include the planets I could see how the inner and outer Linblad resonances of the dominant GI modes affect planet motion. The code can also be used to study close highly unequal-mass binaries surrounded by a circumbinary disk. 
+
+Several improvements could be made to the code to increase its capabilities in the study of embedded planets. The simplest such improvement would be to allow for multiple massive planets to be included in a disk simulation. One would need to account for the planet-planet interactions and so the number of planets would need to be kept small as the force calculation is $O(N^2)$. However, investigations of systems with two or three planets in a GI active disk could prove to be quite interesting. Further improvements would entail including planets of different size regimes from small dust particles that basically stay entrained in the gas flows to meter sized particles that are maximally affected by gas drag. This would require significant extensions to the currently existing code, namely, accurately determining the gas drag coefficients.
+
+\section{Final Remarks}
+
+Certainly questions abound throughout the field of astrophysics and even in the tiny niche of gravitational instabilities in protoplanetary disks. There are certainly many lifetimes worth of questions to address in order to complete our understanding of young stellar systems, gas giant planet formation, and the role that GIs play in shaping them. I have been privileged to dedicate several years of my professional life to the study contained in this dissertation and I hope to continue to struggle with these and other interesting questions for many years to come. Obviously, the final word on the theory of gas giant planet formation and gravitational instabilities in protoplanetary disks is in the distant future, but hopefully this work has shed some light on the subject, answered a few questions, and raised many more. The conclusion of this work is more of a beginning than an end, hopefully a beginning to answering new and exciting questions. Perhaps we will never fully understand GIs, but in the words of Emerson, ``Life is a journey, not a destination.''

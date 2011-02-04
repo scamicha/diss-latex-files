@@ -1,0 +1,147 @@
+%
+%all the LaTeX formatting and definition crap
+%for Aaron Steinhauer's thesis
+%2003
+%Stolen mostly from Adam Rengstorf and Shawn Slavin
+%
+
+\usepackage[figuresright]{rotating}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{mhchem}
+%\usepackage{doublespace}
+\usepackage{setspace}
+\usepackage{natbib}
+%\usepackage{graphics}
+%\usepackage{deluxetable}
+%\usepackage{mydefs}
+\usepackage{afterpage}
+\usepackage{float}
+%\usepackage{xspace}
+\usepackage{verbatim}
+\usepackage{graphicx}
+\usepackage{grffile}
+\usepackage{epstopdf}
+\usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
+\usepackage{subfigure}
+\usepackage{geometry}   %SM
+%\usepackage{xcolor}
+%\usepackage{dcolumn}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+
+% Replaced setlengths with geometry call
+
+\geometry{papersize={8.5in,11in},textwidth=5.95in,textheight=8.3in,left=1.525in,top=1.525in,headheight=0.15in,headsep=0.35in,marginparsep=0.125in,marginparwidth=0.75in,verbose}
+
+% \special{papersize=8.5in,11in}
+% \setlength{\oddsidemargin}{0.525in}
+% \setlength{\evensidemargin}{0.525in}
+% \setlength{\topmargin}{0.025in}
+% \setlength{\textwidth}{5.95in}
+% \setlength{\textheight}{8.3in}
+% \setlength{\headheight}{0.15in}
+% \setlength{\headsep}{0.35in}
+% \setlength{\marginparsep}{0.125in}
+% \setlength{\marginparwidth}{0.75in}
+% \setlength{\footskip}{0.125in}
+
+\makeatletter
+\renewcommand{\@biblabel}[1]{\hspace{-\itemsep}}
+%\let\ps@plain=\ps@headings
+\setlength\@fpsep{2in}
+\makeatother
+
+\makeatletter
+\renewcommand*\@makechapterhead[1]{%
+  \vspace*{5\p@}%
+  {\parindent \z@ \raggedright \normalfont
+    \ifnum \c@secnumdepth >\m@ne
+        \huge\bfseries \@chapapp\space \thechapter
+        \par\nobreak
+        \vskip 15\p@
+    \fi
+    \interlinepenalty\@M
+    \Huge \bfseries #1\par\nobreak
+    \vskip 35\p@
+  }}
+\renewcommand*\@makeschapterhead[1]{%
+  \vspace*{5\p@}%
+  {\parindent \z@ \raggedright
+    \normalfont
+    \interlinepenalty\@M
+    \Huge \bfseries  #1\par\nobreak
+    \vskip 35\p@
+  }}
+\makeatother
+
+%\end{Thanks Shawn}
+
+\def\citeapos#1{\citeauthor{#1}'s (\citeyear{#1})}
+\renewcommand{\bibname}{References}
+\renewcommand{\floatpagefraction}{0.5}
+\renewcommand{\textfloatsep}{0.2in}
+%\floatplacement{deluxetable}{tbp}
+%\renewcommand{\HII}{\ion{H}{2}\xspace}    %  HII
+\bibpunct{(}{)}{;}{a}{}{,}
+%\newcommand{\feh}{$[Fe/H]$\xspace}
+\newcommand{\dif}{\mathrm{d}}
+
+%\newcolumntype{d}[0]{D{.}{.}{-1}}
+
+%\newcommand\teff{$T_{eff}$\xspace}
+
+%include figure commands
+\def\eps@scaling{1.0}% 
+\newcommand\epsscale[1]{\gdef\eps@scaling{#1}}% 
+% \newcommand\plotone[1]{% 
+%  \centering 
+%  \leavevmode 
+% % \includegraphics[width={\eps@scaling\columnwidth}]{#1}% 
+%  \resizebox{\columnwidth}{!}{\includegraphics{#1}}% 
+% }% 
+% \newcommand\plotport[1]{% 
+%  \centering 
+%  \leavevmode 
+% % \includegraphics[width={\eps@scaling\columnwidth}]{#1}% 
+%  \resizebox{!}{7.6in}{\includegraphics{#1}}% 
+% }% 
+% \newcommand\plottwo[2]{% 
+%  \centering 
+%  \leavevmode 
+% % \includegraphics[width={\eps@scaling\columnwidth}]{#1}% 
+%  \resizebox{.45\columnwidth}{!}{\includegraphics{#1}}%
+%  \hfil 
+% % \includegraphics[width={\eps@scaling\columnwidth}]{#2}% 
+%  \resizebox{.45\columnwidth}{!}{\includegraphics{#2}}%
+% }% 
+% \newcommand\plotsmall[1]{% 
+%  \centering 
+%  \leavevmode 
+%  \resizebox{.75\columnwidth}{!}{\includegraphics{#1}}% 
+% }% 
+
+%color/bandpass commands
+%\newcommand\ubv{\mbox{$U\!BV$\ }}
+%\newcommand\rbrv{\mbox{$R\!BR\!V$\ }}
+%\newcommand\ub{\mbox{$U\!-\!B$\ }}
+%\newcommand\vr{\mbox{$V\!-\!R$\ }}
+%\newcommand\br{\mbox{$B\!-\!R$\ }}
+%\newcommand\bv{\mbox{$B\!-\!V$\ }}
+
+%journal title commands
+%\newcommand\aj{\rmfamily{AJ}}%
+%\newcommand\araa{\rmfamily{ARA\&A}}%
+%\newcommand\apj{\rmfamily{ApJ}}%
+%\newcommand\apjl{\rmfamily{ApJ}}% 
+%\newcommand\apjs{\rmfamily{ApJS}}%
+%\newcommand\aap{\rmfamily{A\&A}}%
+%\newcommand\baas{\rmfamily{BAAS}}%
+%\newcommand\mnras{\rmfamily{MNRAS}}%
+%\newcommand\pasp{\rmfamily{PASP}}%
+%\newcommand\procspie{\rmfamily{Proc.~SPIE}}%
+%\newcommand\nat{\rmfamily{Nature}}% 
+
+%\end{pirated/hacked commands}

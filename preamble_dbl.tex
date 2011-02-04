@@ -1,0 +1,127 @@
+%
+%all the LaTeX formatting and definition crap
+%for Aaron Steinhauer's thesis
+%2003
+%Stolen mostly from Adam Rengstorf and Shawn Slavin
+%
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{doublespace}
+\usepackage{natbib}
+\usepackage{graphics}
+\usepackage{deluxetable}
+\usepackage{aastex_hack}
+\usepackage{afterpage}
+\usepackage{float}
+\usepackage{rotating}
+\usepackage{xspace}
+%\usepackage{dcolumn}
+
+\setcounter{secnumdepth}{3}
+\setcounter{tocdepth}{2}
+
+%\begin{Thanks Shawn}
+
+\special{papersize=8.5in,11in}
+\setlength{\oddsidemargin}{0.525in}
+\setlength{\evensidemargin}{0.025in}
+\setlength{\topmargin}{0.025in}
+\setlength{\textwidth}{5.95in}
+\setlength{\textheight}{8.325in}
+\setlength{\headheight}{0.15in}
+\setlength{\headsep}{0.35in}
+\setlength{\marginparsep}{0.125in}
+\setlength{\marginparwidth}{0.75in}
+\setlength{\footskip}{0.125in}
+
+\makeatletter
+\renewcommand{\@biblabel}[1]{\hspace{-\itemsep}}
+\let\ps@plain=\ps@headings
+\makeatother
+
+%\end{Thanks Shawn}
+
+\renewcommand{\bibname}{References}
+\renewcommand{\floatpagefraction}{0.5}
+\renewcommand{\textfloatsep}{0.2in}
+\floatplacement{deluxetable}{tbp}
+\newcommand{\HII}{\ion{H}{2}\xspace}    %  HII
+\bibpunct{(}{)}{;}{a}{}{,}
+\newcommand{\feh}{$[Fe/H]$\xspace}
+
+%\newcolumntype{d}[0]{D{.}{.}{-1}}
+
+%
+%\begin{pirated/hacked commands from aastex.cls}
+%
+
+%degree,arcmin,arcsec
+%\newcommand\degr{\mbox{$^\circ$}}
+%\newcommand\arcmin{\mbox{$^\prime$}}
+%\newcommand\arcsec{\mbox{$^{\prime\prime}$}}
+%\newcommand\fdg{\mbox{$.\!\!^\circ$}}
+%\newcommand\farcs{\mbox{$.\!\!^{\prime\prime}$}}
+%\newcommand\farcm{\mbox{$.\mkern-4mu^\prime$}}
+%\newcommand\sun{\odot}
+\newcommand\liseven{$^7$Li\xspace}
+\newcommand\lisix{$^6$Li\xspace}
+\newcommand\teff{$T_{eff}$\xspace}
+
+%other math-type commands
+%\newcommand\micron{\mbox{$\mu$m\ }}
+%\newcommand\gtrsim{\mathrel{\hbox{\rlap{\hbox{\lower4pt\hbox{$\sim$}}}\hbox{$>$}}}
+\newcommand\lessim{\mathrel{\hbox{\rlap{\hbox{\lower4pt\hbox{$\sim$}}}\hbox{$<$}}}}
+
+%include figure commands
+\def\eps@scaling{1.0}% 
+\newcommand\epsscale[1]{\gdef\eps@scaling{#1}}% 
+\newcommand\plotone[1]{% 
+ \centering 
+ \leavevmode 
+% \includegraphics[width={\eps@scaling\columnwidth}]{#1}% 
+ \resizebox{\columnwidth}{!}{\includegraphics{#1}}% 
+}% 
+\newcommand\plotport[1]{% 
+ \centering 
+ \leavevmode 
+% \includegraphics[width={\eps@scaling\columnwidth}]{#1}% 
+ \resizebox{!}{7.6in}{\includegraphics{#1}}% 
+}% 
+\newcommand\plottwo[2]{% 
+ \centering 
+ \leavevmode 
+% \includegraphics[width={\eps@scaling\columnwidth}]{#1}% 
+ \resizebox{.45\columnwidth}{!}{\includegraphics{#1}}%
+ \hfil 
+% \includegraphics[width={\eps@scaling\columnwidth}]{#2}% 
+ \resizebox{.45\columnwidth}{!}{\includegraphics{#2}}%
+}% 
+\newcommand\plotsmall[1]{% 
+ \centering 
+ \leavevmode 
+ \resizebox{.75\columnwidth}{!}{\includegraphics{#1}}% 
+}% 
+
+%color/bandpass commands
+%\newcommand\ubv{\mbox{$U\!BV$\ }}
+%\newcommand\rbrv{\mbox{$R\!BR\!V$\ }}
+%\newcommand\ub{\mbox{$U\!-\!B$\ }}
+%\newcommand\vr{\mbox{$V\!-\!R$\ }}
+%\newcommand\br{\mbox{$B\!-\!R$\ }}
+%\newcommand\bv{\mbox{$B\!-\!V$\ }}
+
+%journal title commands
+%\newcommand\aj{\rmfamily{AJ}}%
+%\newcommand\araa{\rmfamily{ARA\&A}}%
+%\newcommand\apj{\rmfamily{ApJ}}%
+%\newcommand\apjl{\rmfamily{ApJ}}% 
+%\newcommand\apjs{\rmfamily{ApJS}}%
+%\newcommand\aap{\rmfamily{A\&A}}%
+%\newcommand\baas{\rmfamily{BAAS}}%
+%\newcommand\mnras{\rmfamily{MNRAS}}%
+%\newcommand\pasp{\rmfamily{PASP}}%
+%\newcommand\procspie{\rmfamily{Proc.~SPIE}}%
+%\newcommand\nat{\rmfamily{Nature}}% 
+
+%\end{pirated/hacked commands}

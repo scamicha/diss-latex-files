@@ -1,0 +1,176 @@
+\chapter{Numerical Methods}\label{chap:numeth}
+\thispagestyle{plain}
+\begin{spacing}{0.9}
+\begin{flushright}
+{\it \footnotesize The best laid schemes of Mice and Men\\ oft go awry,\\ And leave us nothing but grief and pain,\\ For promised joy!\\}
+ {\small -- Robert Burns, {\it To a Mouse}}
+\end{flushright}
+\end{spacing}
+Several different versions of the Indiana University Hydrodynamics Group (IUHG) code have been used to carry out the studies being presented. This chapter describes their design and presents the addition of several new algorithms used to account for stellar motion and follow the motion of a planet in a GI-active protoplanetary disk, as well as presenting results from tests to evaluate the accuracy and efficiency of these new algorithms. 
+
+\section{Standard IUHG Version}\label{sec:standard}
+
+The standard version of the IUHG code is an Eulerian scheme which is second order in both space and time. The evolution is carried out in cylindrical coordinates ($r$,$\phi$,$z$) on an evenly spaced three dimensional grid. The rotation axis of the disk is aligned with the $z$-axis. The ($r$,$\phi$,$z$)-directions will hereafter be referred to as the radial, azimuthal, and vertical directions. The disk is treated as having reflection symmetry about the midplane in order to reduce computation time.
+Poisson's equation is solved via Fourier decomposition and cyclic reduction \citep{tohline1980}. Shock heating is modeled via artificial viscosity \citep{pickettphd1995} and cooling can be treated in various ways. For this study, three particular cooling methods are of interest, an {\it ad hoc} constant cooling prescription, the Cai/Mej\'{i}a radiative algorithm \citep{mejiaphd2004,caiphd2006}, and the Boley radiative algorithm \citep{boley2007b}. (See \S \ref{sec:cooling} below for details on the cooling algorithms.)
+
+The equations of hydrodynamics and self gravity are:
+\begin{eqnarray}
+\frac{\partial \rho}{\partial t} + \nabla \cdot \rho \boldsymbol{v} & = & 0,\label{eq:massconteq}\\
+\frac{\partial \rho \boldsymbol{v}}{\partial t} + \nabla \cdot \rho \boldsymbol{vv} & = & -\nabla p - \rho \nabla \Phi_{\mathrm{tot}} - \nabla \cdot (\rho \mathsf{Q}),\label{eq:motioneq}\\
+\frac{\partial \epsilon}{\partial t} + \nabla \cdot \boldsymbol{v} \epsilon & = & - p \nabla \cdot \boldsymbol{v} + \Gamma - \Lambda,\label{eq:energyeq}\\
+\nabla^2 \Phi_{\mathrm{disk}} & = & 4 \pi G \rho\label{eq:graveq}.
+\end{eqnarray}
+These are the mass continuity equation \eqref{eq:massconteq}, the equations of motion \eqref{eq:motioneq}, the internal energy equation \eqref{eq:energyeq}, and Poisson's equation \eqref{eq:graveq}. Here $\rho$ is the mass density, $\boldsymbol{v}$ represents the gas velocity, $p$ is the gas pressure, $\mathsf{Q}$ is the artificial viscosity tensor, $\epsilon$ is the internal energy density, $\Gamma$ represents heating due to artificial viscosity, $\Lambda$ represents net cooling due to energy transport via radiation or other mechanisms, and $\Phi_{\mathrm{tot}}$ and $\Phi_{\mathrm{disk}}$ are the total and disk gravitational potentials, respectively. (See sections \S\ref{sec:indirectpot} and \S\ref{sec:planetforces} for the determination of the total potential.)
+
+Artificial viscosity is treated using a von Neumann-type scheme \citep{norman1986} in which the off-diagonal terms of the artificial viscosity tensor are set to zero and the heating due to artificial viscosity is given by $\Gamma = \rho(\mathsf{Q}_{rr}\partial_r v_r + \mathsf{Q}_{\phi\phi} r^{-1}\partial_\phi v_\phi + \mathsf{Q}_{zz} \partial_z v_z)$. Previous versions of the code have used a constant ratio of specific heats $\gamma$ and an ideal gas equation of state to define the pressure
+\begin{equation}
+p = (\gamma - 1)\epsilon. 
+\label{eq:idealpres}
+\end{equation}
+This allows one to rewrite the energy equation \eqref{eq:energyeq} in conservative form,
+\begin{equation}
+\frac{\partial \epsilon^{1/ \gamma}}{\partial t} +\nabla \cdot \boldsymbol{v} \epsilon^{1/ \gamma} = \frac{\epsilon^{1/ \gamma-1}}{\gamma} (\Gamma - \Lambda). \label{eq:consenergyeq}
+\end{equation}
+This version of the energy equation was first included in the IUHG code by \citet{pickettphd1995} and was found to produce better energy conservation than the implementation of equation \eqref{eq:energyeq}. Equation \eqref{eq:consenergyeq} is used for those simulations which use a constant $\gamma$ equation of state. However, other simulations use a more realistic equation of state for \cf{H2} which takes into account its translational, rotational and vibrational states \citep{boley2007a}. See Table \ref{tbl:algtable} for details of algorithms used for each type of simulation.
+
+\begin{table}
+\centering
+ \begin{tabular}{ccccc}
+  \hline
+Simulation Type&EOS&Cooling&Central Star&Planet\\
+  \hline\hline  
+  Initial Conditions&$\gamma$&$\mathrm{t_{cool}}$&Fixed&No\\
+  Indirect Comparison&$\gamma$&$\mathrm{t_{cool}}$&Indirect&No\\
+  Planet Baseline&$\mathrm{H_2}$&Radiative&Indirect&No\\
+  Planet Comparisons&$\mathrm{H_2}$&Radiative&Indirect&Yes\\   
+ \hline
+\end{tabular}
+\caption[Algorithms Used]{Algorithms Used for Different Types of Simulations}
+\label{tbl:algtable}
+\end{table}
+
+The code evolves several state variables, namely the mass density $\rho$, internal energy density $\epsilon$ and momentum densities $\rho \boldsymbol{v}$. Each component of the momentum is evolved independently. Expansion of equation \eqref{eq:motioneq} yields three equations for the momentum, namely,
+\begin{eqnarray}
+\frac{\partial S}{\partial t} + \nabla \cdot S \boldsymbol{v} &=& -\rho \frac{\partial p}{\partial r} -\rho \frac{\partial \Phi_{\mathrm{tot}}}{\partial r} - \frac{\partial r \rho \mathsf{Q}_{rr}}{r \partial r} + \frac{A^2}{\rho r^3},\\
+\frac{\partial A}{\partial t}+ \nabla \cdot A \boldsymbol{v} &=& -\rho\frac{\partial p}{\partial \phi} - \rho\frac{\partial \Phi_{\mathrm{tot}}}{\partial \phi}- \frac{\partial \rho \mathsf{Q}_{\phi \phi}}{\partial \phi},~\mathrm{and}\\
+\frac{\partial T}{\partial t} + \nabla \cdot T \boldsymbol{v} &=& -\rho \frac{\partial p}{\partial z} -\rho\frac{\partial \Phi_{\mathrm{tot}}}{\partial z} - \frac{\partial \rho \mathsf{Q}_{zz}}{\partial z}.
+\end{eqnarray}
+This gives three momenta arrays $S$, $T$, and $A$, which are the radial $\rho \boldsymbol{v}_r$, vertical $\rho \boldsymbol{v}_z$ and angular momentum densities $\rho r \boldsymbol{v}_\phi$, respectively. The momentum density arrays along with the mass density $\rho$ updated according to equation \eqref{eq:massconteq} and the internal energy density $\epsilon$ updated according to either equation \eqref{eq:energyeq} or \eqref{eq:consenergyeq} depending on the type of EOS used, define the five state variable arrays evolved by the code. 
+
+The five state variables are updated in time via a two-step process achieved through operator splitting, which has been shown to reduce numerical noise \citep{williamsphd1988,yangphd1992}. The equations are written in a conservative form, except for the energy equation in the cases in which the \cf{H2} equation of state is used. The two steps are known as {\it sourcing} and {\it fluxing}. In the source step, the dynamic variables are accelerated by the pressure force, the centrifugal force, and gravity. Also, heating and cooling due to artificial viscosity and the cooling prescription are accounted for by updating the the internal energy. In the fluxing step, the variables are fluxed by calculating the flow through the surfaces of the grid cells. All of the surfaces at the grid boundaries use outflow boundary conditions. As described by \citet{yangphd1992}, the fluxing is accomplished by using a second- order van Leer monotonic advection \citep{vanleer1979}.  \citet{yangphd1992} found that by calculating the $S$ and $T$ values at the centers of their respective cell faces and the $\rho$, $A$, and $\epsilon$ arrays at the cell centers greater stability was achieved over calculating all the values at the cell centers. For more details on the specifics of the differencing schemes see \citet{pickettphd1995}.
+
+In order to achieve second-order accuracy in time, the dynamical quantities are advanced a half step, the half-sourced values are transported a full step, and finally the source terms are updated and the final distribution is sourced for the second half step. Since the potential distribution is calculated from the density, which has no source terms, it only needs to be calculated once per step. For a flow chart of these steps see \citet{mejiaphd2004,boleyphd2007}.
+
+The potential used to source the state variables is made up of several components namely, the disk component, the stellar component, the indirect compononet, and the planet component. So 
+\begin{equation}
+\Phi_{\mathrm{tot}} = \Phi_{\mathrm{disk}} + \Phi_{\mathrm{star}} + \Phi_{\mathrm{ind}} + \Phi_{\mathrm{planet}}. \label{eq:poteq}
+\end{equation} 
+The indirect component contains two pieces --- due to the disk $\Phi_{\mathrm{ind~(disk)}}$ and the planet $\Phi_{\mathrm{ind~(planet)}}$. 
+Each of the terms in equation \eqref{eq:poteq} is calculated differently. $\Phi_{\mathrm{disk}}$ comes from the solution to equation \eqref{eq:graveq}. The disk potential is calculated by first determining the boundary potential by multipole expansion of spherical harmonics using $l = |m| = 10$. Once the boundary conditions have been obtained, the density data is Fourier transformed in the $\phi$-direction. Each of the Fourier components yields a 2D boundary value problem which can be cast into a block-tridiagonal matrix and is then solved using cyclic reduction. The solution in Fourier space is then transformed back into real space. 
+
+The star's potential has been calculated in two different ways. Initial equilibrium models are generated using an SCF algorithm which produces a star/disk model \citep{pickettphd1995}. In order to avoid overly small time steps the central star is removed \citep{pickett2003}. The gravitational effect of the removed material can be calculated from the mass distribution removed. This potential data is then saved and can be applied to the simulation as long as the mass inside the hole is assumed to be stationary. Tests have shown that approximating the evacuated mass as a point mass in the midplane on the $z$-axis makes a negligible difference to the potential, so most recent simulations have used this approximation. Making such an approximation is beneficial because the star's potential can now be recalculated if it moves from the grid center. However, there are more computationally efficient and elegant ways of treating stellar motion besides moving the star directly (e.g. \S\ref{sec:indirectpot}). In all the Initial Conditions runs (see Table \ref{tbl:algtable}), the central star is treated as a point mass fixed at the grid center in an inertial frame. All other simulations employ the indirect potential method described in \S\ref{sec:indirectpot} to account for accelerations of the frame centered on the star due to interactions with the disk and planet. In all cases, the star remains fixed at the grid center and is treated as a point mass so that 
+\begin{equation}
+\Phi_{\mathrm{star}} = -\frac{GM_{\mathrm{star}}}{\boldsymbol{r}}. \label{eq:starpot}
+\end{equation}
+There are two terms which go into the calculation of $\Phi_{\mathrm{ind}}$, specifically the disk's indirect contribution and the indirect contribution of the planet. The treatment of the planet potential is described in \S\ref{sec:planetforces}.  
+
+\section{Cooling Algorithms} \label{sec:cooling}
+
+Several different cooling routines are used in the simulations contained in this study. I will briefly outline the key characteristics of these algorithms, but interested readers can consult \citet{mejiaphd2004}, \citet{caiphd2006}, and \citet{boleyphd2007} for more details. The three cooling types we will focus on are constant cooling, the Cai/Mej\'{i}a radiative routine, and the Boley radiative routine. 
+
+\subsection{Constant Cooling} \label{sec:constantcooling}
+
+This is the simplest of the cooling algorithms, and although it is the least physical, it does provide insight when comparing the effect of other parameters on the strength and character of GIs. It also executes the fastest, and this allows for more efficient sampling of parameter space. The volumetric cooling rate in equation \eqref{eq:energyeq} is determined according to
+\begin{equation}
+\Lambda = \epsilon / t_{\mathrm{cool}},\label{eq:constcool}
+\end{equation}
+where $t_{\mathrm{cool}}$ is a constant parameter that is set at the beginning of a simulation. The energy is removed from every cell with a density greater than the negligible background density, also determined at the beginning of a simulation. The cooling time is generally specified in Outer Rotation Periods (ORPs) which is the initial rotation period at radial zone 200 ($\approx 33$ AU) for the original Mej\'{i}a disk with a $r^{-1/2}$ surface density profile. In all simulations in this dissertation, the ORP is roughly 250 years. See Table \ref{tbl:IC:initcond} for more precise values.
+
+\subsection{Cai/Mej\'{i}a Radiative Routine}\label{sec:caimejiacooling}
+
+One of the first algorithms to treat realistic radiative cooling to be used in the IUHG code was developed by \citet{mejiaphd2004} and uses flux-limited diffusion in all directions wherever the Rosseland mean optical depth integrated vertically downward is $\tau > 2/3$. For these regions, the cooling term $\Lambda$ is $\nabla \cdot F$, where $F$ is the diffusive flux.  At the disk photosphere ($\tau = 2/3$), the disk interior is coupled to the disk atmosphere by applying an Eddington-like fit which determines the flux leaving the disk. The atmosphere is heated by this flux and in turn radiates according to its emissivity. Half of the emitted radiation is assumed to be lost, and half is radiated back down to the photosphere. This algorithm does not allow for the exchange of radiation between cells in the atmosphere. 
+\citet{caiphd2006} updated and improved these routines by smoothing the boundary flux over two vertical cells and allowing for the addition of incoming radiative flux from an envelope or the surrounding disk. One of the drawbacks of this scheme is that there is always a sharp temperature drop of tens of percent at $\tau = 2/3$ due to the fact that cell-to-cell coupling is not treated properly in the atmosphere \citep{boley2006,boley2007b}.
+
+\subsection{Boley Radiative Routine}\label{sec:boleycooling}
+
+In order to address this shortcoming, \citet{boley2007b} implemented a new radiative scheme, where the transport of energy by radiation in the vertical direction is computed using the method of discrete ordinates \citep{chandra1960}. Here each vertical column is considered to be a separate plane parallel structure, and the transfer is calculated using a single upward ray at $\mu = 1/\sqrt{3}$ to the vertical and a single downward ray at $\mu = -1/\sqrt{3}$, where $\mu$ is the cosine of the angle between the ray and the disk vertical . For optical depths greater than $\tau = 1/\sqrt{3}$, transport in the $r$ and $\phi$ directions is treated using flux-limited diffusion. No transport is modeled in the $r$ and $\phi$ directions for $\tau < 1/\sqrt{3}$. The advantage of this scheme is that the vertical transport is modeled explicitly, no fitting of the atmosphere is required and cell-to-cell coupling is included explicitly for all $\tau$. Tests of this algorithm yield qualitatively similar results to the Cai/Mej\'{i}a scheme \citep{boley2007b}. However, the Boley scheme removes the temperature discontinuity at the photosphere seen in the Cai/Mej\'{i}a scheme, so the atmosphere is hotter. For more details on the implementation of the algorithm, see \citet{boleyphd2007}. All of the simulations including radiative transport in this work use the Boley scheme. The Cai/Mej\'{i}a scheme is described for completeness.
+
+\section{Indirect Potential} \label{sec:indirectpot}
+
+One major concern in previous simulations has been the spurious growth or suppression of one-armed spirals once GIs set in due to the fact that the central mass remains fixed at the grid center. When the central star is not allowed to move, forces that would normally be exerted on the star by one-armed spirals are effectively ignored. One way to determine the magnitude of this effect is to track the position of the disk center of mass. If the disk is centered very near the star's position, the star's motion should be small. Constant cooling runs using a fixed central potential show that the disk's center of mass was at most only a few cells away from the grid center. However, this method only takes into account what the disk's effect would be on the star if the star were fixed at the grid center. It does not capture the full interaction between star and disk and, more importantly, the possible feedback between stellar motion and growth of one-armed modes \citep{adams1989,shu1990}. The only way to measure the effect of GIs on stellar motion and the effect of stellar motion on GIs is to model it explicitly.
+
+I chose to use the indirect potential method \citep{nelson2000b} to model the motion of the central star. With this treatment, the grid is considered to be an accelerated frame, not an inertial frame. This scheme has the practical benefit that the star remains fixed at the grid center. The acceleration of the star-centered reference frame due to gravitational forces can be included into the pre-existing equation of motion \eqref{eq:motioneq} as an additional potential, termed the {\it indirect potential}.    
+In this case the potential at some point in the disk is given by,
+\begin{equation}
+\Phi = -\frac{GM_{\ast}}{r} + G\int_{V^\prime} \frac{\dif m(\boldsymbol{r^\prime})}{r^{\prime3}}\boldsymbol{r}\cdot\boldsymbol{r^\prime} + \Phi_{\mathrm{disk}},\label{eq:totalphi}
+\end{equation}
+where $\Phi_{\mathrm{disk}}$ is the disk potential calculated from equation \eqref{eq:graveq} as described in \S\ref{sec:standard}. The first term is the standard potential from a central point mass $\Phi_{\mathrm{star}}$ and the second term is $\Phi_{\mathrm{ind~(disk)}}$ the indirect potential due the acceleration of the star by the disk. In practice, I compute
+\begin{equation}
+\int_{V^\prime}\frac{\dif m(\boldsymbol{r^\prime})}{r^{\prime3}} \boldsymbol{r^\prime}
+\end{equation} 
+and then compute
+\begin{equation}
+G\boldsymbol{r} \cdot \int_{V^\prime}\frac{\dif m(\boldsymbol{r^\prime})}{r^{\prime3}} \boldsymbol{r^\prime}
+\end{equation}
+for each cell.
+This turns out to be much less computational burden than computing the entire integral in equation \eqref{eq:totalphi} for each cell to. In chapter \ref{chap:indirect} I detail the effect of adding stellar motion to GI active simulations and compare the results to previous fixed star simulations and indirect potential simulations performed by other authors.
+
+\section{Planet Integration} \label{sec:planetintegrate}
+
+\subsection{Leapfrog Integrator}\label{sec:leapfrog}
+In order to model the effect of GIs on the migration of protoplanets and planets, I have added routines to the standard version of the code to follow the motion of massive particles in a GI-active background. I determined that the simplest second-order accurate scheme to implement was the leapfrog scheme, sometimes known as the Verlet method. It has been shown to be the simplest example of a symplectic integrator \citep{channell1990,yoshida1990} and produces high accuracy and stability when compared with other second-order integrators such as Runge-Kutta methods. Generally the equations are written in a time-interleaved fashion with the positions  and accelerations specified on the integer time steps and the velocities specified on the half-integer steps as in
+\begin{subequations}
+\label{eq:leapfrog}
+\begin{eqnarray}
+r_1 &=& r_0 + v_{1/2} \Delta t\\
+\hspace{-.25in} \mathrm{and} \hspace{.25in} v_{3/2} &=& v_{1/2} + a_1 \Delta t.
+\end{eqnarray}
+\end{subequations}
+Note that the displacement of $v$ with respect to $r$ and $a$ is time symmetric, preventing the accumulation of error in the energy over time. However, it is more convenient to write the equations such that all necessary quantities are defined on integer time steps:
+\begin{subequations}
+\label{eq:intleapfrog}
+\begin{eqnarray}
+r_1&=&r_0+v_0\Delta t + \frac{1}{2} a_0 (\Delta t)^2,\\
+v_1&=&v_0+\frac{1}{2}(a_0+a_1)\Delta t
+\end{eqnarray}
+\end{subequations}
+Starting at time step $T = 0$ with variables $r_0$, $v_0$ and $a_0$ defined, one first computes $r_1$ based on these values. Next one computes $a_1(r_1)$ by calculating the forces from both the disk and the central star. This step is done {\it after} the potential is updated following the full hydrodynamic flux step so that the integration of the planet is in phase with the integration of the disk hydrodynamics. Finally, with $a_0$ and $a_1$ in hand, $v_1$ is calculated. Although equation \eqref{eq:intleapfrog} may appear to have lost its time symmetry, it is, in fact, equivalent to equation \eqref{eq:leapfrog}, which can be verified by direct substition \citep{barnes1989,tuckerman1992}.
+
+Another concern with the leapfrog scheme is that the time symmetry of the integrator is lost when variable step sizes are used. Unfortunately, variable step sizes are an intrinsic part of the main hydrodynamics code, where the time step is set by either the Courant time or the local heating or cooling time, whichever is the smallest, and is allowed to vary as the disk evolves. Indeed, when GIs set in and begin to generate strong shocks, the Courant time, heating times and cooling times can sometimes decrease dramatically. \citet{hut1995} describe a method by which time symmetry can be recovered by determining the time step in such a way as to guarantee symmetry to the desired accuracy. The implicit form of their time-symmetrized scheme can be written as follows:
+\begin{subequations}
+\begin{eqnarray}
+\varsigma_1&=&f(\varsigma_0,\delta t),\\
+\delta t &=& \frac{1}{2}[ h(\varsigma_0) + h (\varsigma_1)],
+\end{eqnarray}
+\end{subequations}
+here $\varsigma$ is the two dimensional phase space vector composed of the planet's position $\boldsymbol{r}$ and velocity $\boldsymbol{v}$, the function $f$ is defined by equation \eqref{eq:intleapfrog} and $h$ is the time step criterion. As \citet{hut1995} note, there are many possibilities for this criterion, they use the minimum overall particle pairs of interparticle encounters and free-fall times. Although, these criteria are perfectly reasonable for an N-body code, they are not well suited to my purposes. A more fitting criterion would be some fraction of the Keplerian orbit period divided by the azimuthal resolution, or perhaps some fraction of the free-fall time. In lieu of adding an additional time step limitation to the existing code, I compared the typical Courant time to the Keplerian orbit period at 5 AU. Based on this comparison I surmised that typical Courant times for the hydrodynamics should be sufficiently small to insure an adequate level of time symmetry and limit the growth of errors. 
+
+In order to test this hypothesis,  a simulation was performed in which the integration time step of the planet was set by the Courant time of a background disk undergoing a full hydrodynamic evolution. The planet and the disk were not allowed to interact. The only information used from the disk in the planet's evolution was the time step. The planet was given an initial velocity consistent with a circular orbit at 20 AU. After completing seven orbits, the orbital energy was conserved to one part in $10^4$, and the orbital angular momentum was conserved to one part in $10^{12}$. Based on these findings, it was determined that the time steps determined by the Courant time were sufficiently small enough to ensure an acceptable level of time symmetry.
+
+\subsection{Determination of Accelerations}\label{sec:planetforces}
+
+There are basically three components of the planet's acceleration which need to be determined at each time step from equations \eqref{eq:intleapfrog}. These are: the acceleration due to the central star, the acceleration due to the reference frame and the acceleration due to the protoplanetary disk. The planet's equation of motion in the frame of the star can be written as:
+\begin{equation}
+\frac{\dif \boldsymbol{r}^2_p}{\dif t^2} = -\frac{G(M_\ast + m_p)}{r^3_p}\boldsymbol{r}_p - a_{\mathrm{disk}} - a_{\mathrm{ind~(disk)}}.
+\end{equation}
+The first term contains the acceleration due to the central star as well as the contribution of the planet to the indirect term. These accelerations are calculated straightforwardly at each time step.
+
+The other complicating factor in adding planet integration is an accurate determination of the planet's acceleration due to the force exerted on the planet by the disk. This complication arises due to the fact that the disk potentials are only computed at cell centers by the Possion solver employed in the IUHG code. However, we require the force (i.e., potential derivatives) to be determined wherever the planet might be, which will generally not be at a cell center or face center. In order to calculate the force due to the disk at any position, a linear interpolation is used. The simplifying assumption is made that the planet is formed in the disk midplane with zero vertical velocity. Since we use reflection symmetry about the midplane, the $z$ component of the acceleration is always zero. Forces are first calculated at cell faces in the $r$ and $\phi$ directions and are then averaged to find the forces at the vertices of the cell containing the planet. A set of two linear interpolations is then performed for each component to determine the force. 
+
+In order to test the implementation of the interpolation routines and integrator simulations were performed in which an initial axisymmetric disk was held fixed while a planet orbited in its potential. Since the mass distribution of the protoplanetary disk used is not a simple one, results could not be compared to analytic solutions. However the $z$ component of the angular momentum was conserved to one part in $10^{13}$ and the expected rosette pattern was observed in the orbit, which maintained nearly constant apapse and periapse radii. 
+
+Once the planet's new position has been determined via the leapfrog integrator, it's potential is added into the overall potential determining the evolution of the hydrodynamics. There are two parts to the planet's contribution, the direct and indirect components. $\Phi_{\mathrm{planet}}$ is given by 
+\begin{equation}
+\Phi_{\mathrm{planet}} = - \frac{G m_p}{\sqrt{r^2 + r_p^2 - 2rr_p \cos (\phi - \phi_p) + \varepsilon}},
+\label{eq:planetphi}
+\end{equation}
+where $m_p$, $r_p$ and $\phi_p$ are the planet's mass, radial position and azimuthal position, respectively. $\varepsilon$ is a smoothing parameter which is set to be some fraction of the planet's Hill radius. In this case, 
+\begin{equation}
+\varepsilon = b r_p \sqrt[3]{\frac{m_p}{3m_\ast}}
+\end{equation} 
+where I have set the fraction $b = 0.2$ in all cases. The indirect portion of the planet's potential can be written as:
+\begin{equation}
+\frac{Gm_p}{r_p^3}\boldsymbol{r} \cdot \boldsymbol{r}_p.
+\end{equation}
+Once $\Phi_{\mathrm{planet}}$ and $\Phi_{\mathrm{ind~(planet)}}$ have been calculated, they are added into the total potential.
+
